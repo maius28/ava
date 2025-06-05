@@ -10,11 +10,11 @@ const router = createRouter({
       component: App,
     },
     {
-      path: '/intelRecommend',
-      name: 'intelRecommend',
-      component: () => import('@/views/IntelRecommendView.vue'),
+      path: '/mapView',
+      name: 'mapView',
+      component: () => import('@/views/MapView.vue'),
       meta: {
-        title: '情报推荐',
+        title: '多域战场情景刻画',
         description: '使用xxx算法，定时接收遥感数据，并推荐展示给用户机构',
         showHome: true,
       },
@@ -24,8 +24,8 @@ const router = createRouter({
       name: 'userTag',
       component: () => import('@/views/UserTagView.vue'),
       meta: {
-        title: '用户情报标签管理',
-        description: '管理用户、标签和情报的数据，解析情报数据，生成标签',
+        title: '知识管理',
+        description: '管理用户、标签和情报的数据',
         showHome: true,
       },
       children: [
@@ -64,12 +64,22 @@ const router = createRouter({
       ],
     },
     {
-      path: '/bee',
-      name: 'bee',
-      component: () => import('@/views/IntelRecommendView.vue'),
+      path: '/extraction',
+      name: 'extraction',
+      component: () => import('@/views/IntelDataExtractionView.vue'),
       meta: {
-        title: '待定',
-        description: '暂无描述',
+        title: '情报抽取',
+        description: '对情报文字进行知识抽取，提取实体、关系等信息',
+        showHome: true,
+      },
+    },
+    {
+      path: '/recommend',
+      name: 'recommend',
+      component: () => import('@/views/RecommendView.vue'),
+      meta: {
+        title: '情报推荐',
+        description: '根据用户的历史行为和偏好，推荐相关情报',
         showHome: true,
       },
     },

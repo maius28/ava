@@ -13,14 +13,14 @@ const navsRoutes = router.getRoutes()
   <a-layout class="layout">
     <a-layout-header>
       <div class="logo" />
-      <a href="/" style="color: white; margin: 0; font-size: 20px;">算法演示平台 Algorithm Visualizer
+      <a href="/" style="color: white; margin: 0; font-size: 20px;"> 多域战场态势信息管理
       </a>
     </a-layout-header>
     <a-layout-content style="padding: 0 0 0 0; min-height: calc(100vh - 64px);">
       <div class="content-wrapper" v-if="$route.path === '/'">
         <div class="product-description">
           <h2>算法可视化工具</h2>
-          <p>通过交互式动画展示算法的工作原理，帮助您更直观地理解和学习各种算法实现过程。</p>
+          <p>描述信息</p>
         </div>
 
         <div class="feature-boxes">
@@ -75,8 +75,9 @@ const navsRoutes = router.getRoutes()
 }
 
 .product-description {
+
   max-width: 800px;
-  margin: 0 auto 50px;
+  margin: 10px auto 50px;
 }
 
 .feature-boxes {
