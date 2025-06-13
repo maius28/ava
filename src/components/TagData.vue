@@ -163,13 +163,6 @@ const handleTagModalOk = () => {
   tagModalVisible.value = false;
 };
 
-// 获取标签颜色
-const getTagColor = (tagName) => {
-  const colors = ['blue', 'green', 'orange', 'purple', 'cyan', 'magenta'];
-  // 基于标签名生成确定的颜色索引
-  const colorIndex = tagName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-  return colors[colorIndex];
-};
 </script>
 
 <style scoped></style>

@@ -5,7 +5,7 @@ module.exports = {
       {
         libraryName: 'ant-design-vue',
         libraryDirectory: 'es',
-        style: 'css', // 如果使用 less，可以改为 'less'
+        style: 'less', // 如果使用 less，可以改为 'less'
       },
     ],
   ],

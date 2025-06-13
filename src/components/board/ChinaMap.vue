@@ -1,0 +1,655 @@
+<template>
+  <div class="map-container-wrapper">
+    <div ref="mapContainer" class="china-map-container"></div>
+
+    <!-- 左上角信息列表 -->
+    <div class="info-panel">
+      <h3>情报列表</h3>
+      <a-list class="info-list" :data-source="defaultInfoList" :bordered="false">
+        <template #renderItem="{ item }">
+          <a-list-item>
+            <div class="info-item">
+              <a-tag class="intel-dot" :style="{
+                backgroundColor: getColorById(item.id),
+                boxShadow: `0 0 10px ${getColorById(item.id)}`
+              }"></a-tag>
+              <span class="info-text">{{ item.text }}</span>
+              <span class="info-time">{{ item.time }}</span>
+            </div>
+          </a-list-item>
+        </template>
+      </a-list>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref, onMounted, onUnmounted, reactive, watch } from 'vue';
+import * as echarts from 'echarts/core';
+import { MapChart, EffectScatterChart, ScatterChart, LinesChart } from 'echarts/charts';
+// import { Map3DChart } from 'echarts-gl/charts';
+import 'echarts-gl';
+import {
+  TitleComponent,
+  TooltipComponent,
+  GeoComponent,
+  VisualMapComponent,
+  LegendComponent
+} from 'echarts/components';
+import { use } from 'echarts/core';
+import ChinaJson from '@/assets/china.json';
+import { dataTool } from 'echarts';
+import { formItemProps } from 'ant-design-vue/es/form';
+
+// 注册必要的ECharts组件
+use([
+  MapChart,
+  EffectScatterChart,
+  ScatterChart,
+  LinesChart,
+  TitleComponent,
+  TooltipComponent,
+  GeoComponent,
+  VisualMapComponent,
+  LegendComponent,
+]);
+
+
+// 定义传入的props,哪种算法
+const props = defineProps({
+  algorithm: {
+    type: String,
+    default: 'personalized'
+  },
+});
+
+// 监听算法变化，更新地图显示
+watch(() => props.algorithm, (newAlgorithm: string) => {
+  if (chartInstance) {
+    updateMapWithAlgorithm(newAlgorithm);
+  }
+});
+
+
+
+// 定义一组颜色数组
+const colorPalette = [
+  '#ff0000', // 红色
+  '#ff9800', // 橙色
+  '#2196f3', // 蓝色
+  '#4caf50', // 绿色
+  '#9c27b0', // 紫色
+  '#ff5722', // 深橙色
+  '#00bcd4', // 青色
+  '#ffeb3b', // 黄色
+  '#673ab7', // 深紫色
+  '#3f51b5'  // 靛蓝色
+];
+
+// // 根据索引获取颜色的方法
+// const getColorByIndex = (index) => {
+//   // 使用取模运算确保当索引超出颜色数组长度时能循环使用颜色
+//   return colorPalette[index % colorPalette.length];
+// };
+
+// 根据ID获取颜色的方法
+const getColorById = (id: number) => {
+  return colorPalette[id % colorPalette.length];
+};
+
+
+// 用户位置数据
+const users = [
+  { id: 1, name: '北京用户', coords: [116.4, 39.9], value: 100 },
+  { id: 2, name: '上海用户', coords: [121.5, 31.2], value: 50 },
+  { id: 3, name: '广州用户', coords: [113.2, 23.1], value: 10 },
+  { id: 4, name: '成都用户', coords: [104.06, 30.67], value: 20 },
+  { id: 5, name: '西安用户', coords: [108.95, 34.27], value: 60 }
+];
+
+// 情报列表数据 - 包含坐标和相关用户
+const defaultInfoList = reactive([
+  {
+    id: 1,
+    text: '南海地区发现不明舰船活动，建议加强监控。',
+    time: '12:45',
+    coords: [112, 16], // 南海坐标
+    value: 80, // 假设关联度值
+  },
+  {
+    id: 2,
+    text: '东北地区电子干扰信号增强，可能影响通讯设备。',
+    time: '11:30',
+    coords: [128, 45], // 东北地区坐标
+    value: 60, // 假设关联度值
+  },
+  {
+    id: 3,
+    text: '西部边境例行巡逻发现异常足迹，已派遣人员调查。',
+    time: '10:15',
+    coords: [88, 40], // 西部边境坐标
+    value: 40, // 假设关联度值
+  },
+  {
+    id: 4,
+    text: '东海海域有不明飞行物出现，建议加强空中监控。',
+    time: '09:00',
+    coords: [122, 30], // 东海坐标
+    value: 70, // 假设关联度值
+  },
+  {
+    id: 5,
+    text: '黄海水域发现异常渔船活动，可能涉及非法捕捞。',
+    time: '08:20',
+    coords: [121, 36], // 黄海坐标
+    value: 50, // 假设关联度值
+  }
+]);
+
+const mapContainer = ref<HTMLElement | null>(null);
+let chartInstance: echarts.ECharts | null = null;
+const updateInterval: number | null = null;
+
+const initChart = () => {
+  if (!mapContainer.value) return;
+
+  // 初始化ECharts实例
+  chartInstance = echarts.init(mapContainer.value, 'dark');
+
+  // 注册中国地图数据
+
+  echarts.registerMap('China', ChinaJson);
+
+  // 初始图表配置
+  const option = {
+    geo: {
+      map: 'China',
+      roam: false, // 禁用缩放和平移
+      zoom: 1.2, // 初始缩放比例
+      itemStyle: {
+        areaColor: 'rgba(0,0,0,0)', // 地图区域颜色
+        borderColor: 'rgba(0,0,0,0)' // 地图边界颜色
+      },
+      emphasis: {
+        itemStyle: {
+          areaColor: 'rgba(0,0,0,0)', // 鼠标悬停时的样式
+          borderColor: 'rgba(0,0,0,0)' // 鼠标悬停时的样式
+        }
+      },
+      silent: true // 禁用鼠标事件
+    },
+    tooltip: {
+      trigger: 'item', // 鼠标悬停时触发
+      formatter: '{b}' // 显示省份名称
+    },
+    // label: {
+    //   show: true,
+    //   formatter: (name) => {
+    //     return name.name ? name.name : '';
+    //   },
+    // },
+    series: [
+      // 3D地图
+      {
+        type: 'map3D',
+        map: 'China',
+        shading: 'lambert',
+        realisticMaterial: {
+          roughness: 0.2, // 粗糙度
+          metalness: 10 // 金属度
+        },
+        light: {
+          main: {
+            color: '#1E63B0',  // 主光源颜色
+            intensity: 1.1, // 主光源强度
+            shadow: true, // 是否开启阴影
+
+          },
+          ambient: {
+            color: '#0a2463', // 环境光颜色
+            intensity: 0.3 // 环境光强度
+          }
+        },
+        viewControl: {
+          distance: 80, // 视角距离
+          alpha: 50, // 视角仰角
+          beta: 10, // 视角角度
+          autoRotate: false, // 禁用自动旋转
+        },
+        label: {
+          show: false,
+          formatter: (params) => {
+            return params.name ? params.name : ' ';
+          },
+          textStyle: {
+            color: '#fff',
+            fontSize: 12,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            padding: [5, 5]
+          },
+          distance: 0,
+          position: 'center',
+        },
+        itemStyle: {
+          areaColor: '#1e3799', // 地图区域颜色
+          borderColor: '#0FFFFF',
+          borderWidth: 1,
+          opacity: 0.8
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 14
+          },
+          itemStyle: {
+            areaColor: '#4D9FFF'
+          }
+        }
+      }
+
+    ]
+  };
+
+  chartInstance?.setOption(option);
+
+  // 处理窗口调整大小
+  window.addEventListener('resize', handleResize);
+};
+
+const handleResize = () => {
+  chartInstance?.resize();
+};
+
+
+
+// 更新地图显示，不同的算法显示不同的推荐结果
+const updateMapWithAlgorithm = (algorithm: string) => {
+  console.log(`更新地图显示，使用算法: ${algorithm}`);
+  // 如果是个性化算法
+  switch (algorithm) {
+    case 'personalized':
+      updateMapPersonalized();
+      break;
+    case 'similarity':
+      // 这里可以添加协同过滤推荐算法逻辑
+      console.log('使用协同过滤推荐算法');
+      updateMapCollaborative();
+      break;
+    case 'content-based':
+      // 这里可以添加基于内容的推荐算法逻辑
+      console.log('使用基于内容的推荐算法');
+      break;
+    default:
+      console.warn(`未知算法: ${algorithm}`);
+  }
+}
+
+const getLineColorByValue = (value) => {
+  // 定义颜色范围：从浅红色到深红色
+  const minColor = [255, 200, 200]; // 浅红色 (RGB)
+  const maxColor = [255, 0, 0];     // 深红色 (RGB)
+
+  // 将 value 映射到 0-1 的范围
+  const normalizedValue = Math.min(Math.max(value / 100, 0), 1);
+
+  // 计算颜色值
+  const r = Math.floor(minColor[0] + (maxColor[0] - minColor[0]) * normalizedValue);
+  const g = Math.floor(minColor[1] + (maxColor[1] - minColor[1]) * normalizedValue);
+  const b = Math.floor(minColor[2] + (maxColor[2] - minColor[2]) * normalizedValue);
+
+  return `rgb(${r},${g},${b})`;
+};
+
+
+// 多个情报推送给一个用户， 用value值在定义线条的粗细
+const updateMapPersonalized = () => {
+  if (!chartInstance) return;
+
+  // // 定义情报列表
+  const infoList = defaultInfoList
+
+  // 定义用户
+  const relatedUser = users[0];
+
+  // 获取当前所有选项
+  const currentOption = chartInstance.getOption();
+  const currentSeries = currentOption.series;
+
+  // 找到3D地图系列的索引
+  let map3DIndex = -1;
+  for (let i = 0; i < currentSeries.length; i++) {
+    if (currentSeries[i].type === 'map3D') {
+      map3DIndex = i;
+      break;
+    }
+  }
+
+  // 准备新的系列数组
+  const newSeries = [];
+
+  // 如果存在3D地图系列，保留它
+  if (map3DIndex >= 0) {
+    newSeries.push(currentSeries[map3DIndex]);
+  }
+
+
+  // 添加其他需要更新的系列
+  newSeries.push(
+    {
+      //生成一个固定的情报scatter点
+      name: '情报点',
+      type: 'effectScatter',
+      coordinateSystem: 'geo',
+      zlevel: 20,
+      data: infoList.map(intel => ({
+        name: intel.text,
+        value: [...intel.coords, 100], // 假设value的最后一个值是强度
+        itemStyle: {
+          color: getColorById(intel.id),
+          shadowBlur: 10,
+          shadowColor: getColorById(intel.id)
+        }
+      })),
+      rippleEffect: {
+        brushType: 'stroke',
+        scale: 3,
+        period: 3
+      },
+      symbol: 'circle',
+      symbolSize: 15,
+    },
+    {
+      name: '用户位置',
+      type: 'scatter',
+      coordinateSystem: 'geo',
+      zlevel: 2,
+      data: [{
+        name: relatedUser.name,
+        value: [...relatedUser.coords, relatedUser.value],
+        itemStyle: {
+          color: '#00FFFF',
+          shadowBlur: 5
+        }
+      }],
+      symbol: 'pin',
+      symbolSize: 25,
+      label: {
+        show: true,
+        formatter: '{b}',
+        position: 'top',
+        distance: 5,
+        fontSize: 12,
+        color: '#fff',
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        padding: [3, 5]
+      }
+    },
+    // 连接线
+    {
+      name: '连接线',
+      type: 'lines',
+      coordinateSystem: 'geo',
+      zlevel: 2,
+      polyline: false,
+      data: infoList.map(info => ({
+        coords: [info.coords, relatedUser.coords],
+        name: `${info.id}`,
+        lineStyle: {
+          width: info.value / 10,  // 随机值，模拟关联强度
+          color: getLineColorByValue(info.value) // 根据用户的 value 值设置颜色
+        }
+      })),
+      lineStyle: {
+        color: '#00FFFF',
+        // 宽度与linesData中的lineStyle.width相关
+        width: 1,
+        opacity: 0.6,
+        curveness: 0.3,
+        type: 'solid'
+      },
+      effect: {
+        show: true,
+        period: 5,
+        trailLength: 0.5,
+        color: '#fff',
+        symbolSize: 5
+      }
+    }
+  );
+
+  // 更新图表，仅更新series部分，使用notMerge: false确保保留其他配置
+  chartInstance.setOption({
+    series: newSeries
+  }, { notMerge: false });
+
+};
+
+// 一个情报推送给多个用户
+const updateMapCollaborative = () => {
+
+  if (!chartInstance) return;
+
+  // // 定义情报列表
+  const info = defaultInfoList[0]
+
+  // 定义用户
+  const relatedUsers = users;
+
+  // 获取当前所有选项
+  const currentOption = chartInstance.getOption();
+  const currentSeries = currentOption.series;
+
+  // 找到3D地图系列的索引
+  let map3DIndex = -1;
+  for (let i = 0; i < currentSeries.length; i++) {
+    if (currentSeries[i].type === 'map3D') {
+      map3DIndex = i;
+      console.log(`找到3D地图系列，索引为: ${map3DIndex}`);
+      break;
+    }
+  }
+
+  // 准备新的系列数组
+  const newSeries = [];
+
+  // 如果存在3D地图系列，保留它
+  if (map3DIndex >= 0) {
+    newSeries.push(currentSeries[map3DIndex]);
+  }
+
+
+  // 添加其他需要更新的系列
+  newSeries.push(
+    {
+      //生成一个固定的情报scatter点
+      name: '情报点',
+      type: 'effectScatter',
+      coordinateSystem: 'geo',
+      zlevel: 20,
+      data: [{
+        name: info.text,
+        value: [...info.coords, info.value],
+        itemStyle: {
+          color: getColorById(info.id),
+          shadowBlur: 10,
+          shadowColor: getColorById(info.id)
+        }
+      }],
+      rippleEffect: {
+        brushType: 'stroke',
+        scale: 3,
+        period: 3
+      },
+      symbol: 'circle',
+      symbolSize: 15,
+    },
+    {
+      name: '用户位置',
+      type: 'scatter',
+      coordinateSystem: 'geo',
+      zlevel: 2,
+      data: relatedUsers.map(relatedUser => ({
+        name: relatedUser.name,
+        value: [...relatedUser.coords, relatedUser.value],
+        itemStyle: {
+          color: '#00FFFF',
+          shadowBlur: 5
+        }
+      })),
+      symbol: 'pin',
+      symbolSize: 25,
+      label: {
+        show: true,
+        formatter: '{b}',
+        position: 'top',
+        distance: 5,
+        fontSize: 12,
+        color: '#fff',
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        padding: [3, 5]
+      }
+    },
+    // 连接线
+    {
+      name: '连接线',
+      type: 'lines',
+      coordinateSystem: 'geo',
+      zlevel: 2,
+      polyline: false,
+      data: relatedUsers.map(user => ({
+        coords: [info.coords, user.coords],
+        name: `${user.name}`,
+        lineStyle: {
+          width: 1,
+          color: 'red'
+        }
+      })),
+      lineStyle: {
+        color: '#00FFFF',
+        // 宽度与linesData中的lineStyle.width相关
+        width: 1,
+        opacity: 0.6,
+        curveness: 0.3,
+        type: 'solid'
+      },
+      effect: {
+        show: true,
+        period: 5,
+        trailLength: 0.5,
+        color: '#fff',
+        symbolSize: 5
+      }
+    }
+  );
+
+  // 更新图表，仅更新series部分，使用notMerge: false确保保留其他配置
+  chartInstance.setOption({
+    series: newSeries
+  }, { notMerge: false });
+
+
+}
+
+
+onMounted(() => {
+  initChart();
+
+  // updateInterval = updateInfoList();
+});
+
+onUnmounted(() => {
+  if (chartInstance) {
+    chartInstance.dispose();
+  }
+  window.removeEventListener('resize', handleResize);
+  if (updateInterval) {
+    clearInterval(updateInterval);
+  }
+});
+</script>
+
+<style scoped>
+.map-container-wrapper {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 64px);
+}
+
+.china-map-container {
+  width: 100%;
+  height: 100%;
+}
+
+.info-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 350px;
+  background-color: rgba(0, 21, 41, 0.8);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+.info-panel h3 {
+  color: white;
+  margin-top: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.info-item.active,
+.info-item:hover {
+  background-color: rgba(0, 123, 255, 0.2);
+}
+
+.info-text {
+  flex: 1;
+}
+
+.info-time {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+:deep(.ant-list-item) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+:deep(.ant-tag) {
+  margin-right: 0;
+}
+
+.intel-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  border: none;
+  padding: 0;
+}
+
+/* 去除tag的默认边框和背景 */
+:deep(.intel-dot .ant-tag) {
+  border: none;
+  padding: 0;
+}
+</style>
