@@ -1,10 +1,32 @@
 <template>
   <div class="map-container-wrapper">
+    <!-- 左上角用户信息 -->
+    <div class="user-info-panel">
+      <h3>用户信息</h3>
+      <a-list class="user-list" :data-source="users" :bordered="false">
+        <template #renderItem="{ item }">
+          <a-list-item>
+            <div class="user-item">
+              <environment-outlined class="location-icon" />
+              <span class="user-name">{{ item.name }}</span>
+            </div>
+            <!-- 添加标签列表 -->
+            <div class="tag-container">
+              <a-tag v-for="(tag, tagIndex) in item.tags" :key="tagIndex" :color="getTagColor(tagIndex)">
+                {{ tag }}
+              </a-tag>
+            </div>
+          </a-list-item>
+        </template>
+      </a-list>
+    </div>
+
+    <!-- 地图容器 -->
     <div ref="mapContainer" class="china-map-container"></div>
 
-    <!-- 左上角信息列表 -->
+    <!-- 右上角信息列表 -->
     <div class="info-panel">
-      <h3>情报列表</h3>
+      <h3>情报信息</h3>
       <a-list class="info-list" :data-source="defaultInfoList" :bordered="false">
         <template #renderItem="{ item }">
           <a-list-item>
@@ -16,10 +38,18 @@
               <span class="info-text">{{ item.text }}</span>
               <span class="info-time">{{ item.time }}</span>
             </div>
+            <!-- 添加标签列表 -->
+            <div class="tag-container">
+              <a-tag v-for="(tag, tagIndex) in item.tags" :key="tagIndex" :color="getTagColor(tagIndex)">
+                {{ tag }}
+              </a-tag>
+            </div>
           </a-list-item>
         </template>
       </a-list>
+      <a-button type="primary" size="big">算法详情</a-button>
     </div>
+
   </div>
 </template>
 
@@ -38,8 +68,7 @@ import {
 } from 'echarts/components';
 import { use } from 'echarts/core';
 import ChinaJson from '@/assets/china.json';
-import { dataTool } from 'echarts';
-import { formItemProps } from 'ant-design-vue/es/form';
+import { EnvironmentOutlined } from '@ant-design/icons-vue';
 
 // 注册必要的ECharts组件
 use([
@@ -98,53 +127,24 @@ const getColorById = (id: number) => {
 };
 
 
+// 获取标签颜色的方法
+const getTagColor = (index: number) => {
+  // 定义标签颜色数组
+  const tagColors = [
+    'blue', 'cyan', 'geekblue', 'gold',
+    'green', 'lime', 'magenta', 'orange',
+    'purple', 'red', 'volcano'
+  ];
+  return tagColors[index % tagColors.length];
+};
+
+
 // 用户位置数据
-const users = [
-  { id: 1, name: '北京用户', coords: [116.4, 39.9], value: 100 },
-  { id: 2, name: '上海用户', coords: [121.5, 31.2], value: 50 },
-  { id: 3, name: '广州用户', coords: [113.2, 23.1], value: 10 },
-  { id: 4, name: '成都用户', coords: [104.06, 30.67], value: 20 },
-  { id: 5, name: '西安用户', coords: [108.95, 34.27], value: 60 }
-];
+const users = ref([]);
+
 
 // 情报列表数据 - 包含坐标和相关用户
-const defaultInfoList = reactive([
-  {
-    id: 1,
-    text: '南海地区发现不明舰船活动，建议加强监控。',
-    time: '12:45',
-    coords: [112, 16], // 南海坐标
-    value: 80, // 假设关联度值
-  },
-  {
-    id: 2,
-    text: '东北地区电子干扰信号增强，可能影响通讯设备。',
-    time: '11:30',
-    coords: [128, 45], // 东北地区坐标
-    value: 60, // 假设关联度值
-  },
-  {
-    id: 3,
-    text: '西部边境例行巡逻发现异常足迹，已派遣人员调查。',
-    time: '10:15',
-    coords: [88, 40], // 西部边境坐标
-    value: 40, // 假设关联度值
-  },
-  {
-    id: 4,
-    text: '东海海域有不明飞行物出现，建议加强空中监控。',
-    time: '09:00',
-    coords: [122, 30], // 东海坐标
-    value: 70, // 假设关联度值
-  },
-  {
-    id: 5,
-    text: '黄海水域发现异常渔船活动，可能涉及非法捕捞。',
-    time: '08:20',
-    coords: [121, 36], // 黄海坐标
-    value: 50, // 假设关联度值
-  }
-]);
+const defaultInfoList = ref([]);
 
 const mapContainer = ref<HTMLElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
@@ -215,6 +215,9 @@ const initChart = () => {
           alpha: 50, // 视角仰角
           beta: 10, // 视角角度
           autoRotate: false, // 禁用自动旋转
+          rotateSensitivity: 0, // 禁用旋转
+          zoomSensitivity: 0, // 禁用缩放
+          panSensitivity: 0 // 禁用平移
         },
         label: {
           show: false,
@@ -306,11 +309,53 @@ const updateMapPersonalized = () => {
   if (!chartInstance) return;
 
   // // 定义情报列表
-  const infoList = defaultInfoList
+  const infoList = [{
+    id: 1,
+    text: '南海地区发现不明舰船活动，建议加强监控。',
+    time: '12:45',
+    coords: [112, 16], // 南海坐标
+    value: 80, // 假设关联度值
+    tags: ['南海', '舰船', '监控'] // 标签
+  },
+  {
+    id: 2,
+    text: '东北地区电子干扰信号增强，可能影响通讯设备。',
+    time: '11:30',
+    coords: [128, 45], // 东北地区坐标
+    value: 60, // 假设关联度值
+    tags: ['东北', '电子干扰', '通讯'] // 标签
+  },
+  {
+    id: 3,
+    text: '西部边境例行巡逻发现异常足迹，已派遣人员调查。',
+    time: '10:15',
+    coords: [88, 40], // 西部边境坐标
+    value: 40, // 假设关联度值
+    tags: ['西部', '边境', '巡逻'] // 标签
+  },
+  {
+    id: 4,
+    text: '东海海域有不明飞行物出现，建议加强空中监控。',
+    time: '09:00',
+    coords: [122, 30], // 东海坐标
+    value: 70, // 假设关联度值
+    tags: ['东海', '飞行物', '监控'] // 标签
+  },
+  {
+    id: 5,
+    text: '黄海水域发现异常渔船活动，可能涉及非法捕捞。',
+    time: '08:20',
+    coords: [121, 36], // 黄海坐标
+    value: 50, // 假设关联度值
+    tags: ['黄海', '渔船', '捕捞'] // 标签
+  }]
+
+  defaultInfoList.value = infoList;
 
   // 定义用户
-  const relatedUser = users[0];
+  const relatedUser = { id: 1, name: '北京用户', coords: [116.4, 39.9], value: 100, tags: ['北京', '用户', '测试'] }
 
+  users.value = [relatedUser];
   // 获取当前所有选项
   const currentOption = chartInstance.getOption();
   const currentSeries = currentOption.series;
@@ -430,10 +475,27 @@ const updateMapCollaborative = () => {
   if (!chartInstance) return;
 
   // // 定义情报列表
-  const info = defaultInfoList[0]
+  const info = {
+    id: 5,
+    text: '黄海水域发现异常渔船活动，可能涉及非法捕捞。',
+    time: '08:20',
+    coords: [121, 36], // 黄海坐标
+    value: 50, // 假设关联度值
+    tags: ['黄海', '渔船', '捕捞'] // 标签
+  }
+
+  defaultInfoList.value = [info];
 
   // 定义用户
-  const relatedUsers = users;
+  const relatedUsers = [
+    { id: 1, name: '北京用户', coords: [116.4, 39.9], value: 100, tags: ['北京', '用户', '测试'] },
+    { id: 2, name: '上海用户', coords: [121.5, 31.2], value: 50, tags: ['上海', '用户', '测试'] },
+    { id: 3, name: '广州用户', coords: [113.2, 23.1], value: 10, tags: ['广州', '用户', '测试'] },
+    { id: 4, name: '成都用户', coords: [104.06, 30.67], value: 20, tags: ['成都', '用户', '测试'] },
+    { id: 5, name: '西安用户', coords: [108.95, 34.27], value: 60, tags: ['西安', '用户', '测试'] }
+  ];
+
+  users.value = relatedUsers;
 
   // 获取当前所有选项
   const currentOption = chartInstance.getOption();
@@ -568,7 +630,7 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .map-container-wrapper {
   position: relative;
   width: 100%;
@@ -580,27 +642,40 @@ onUnmounted(() => {
   height: 100%;
 }
 
-.info-panel {
+// 通用面板样式
+.panel {
   position: absolute;
-  top: 20px;
-  left: 20px;
   width: 350px;
   background-color: rgba(0, 21, 41, 0.8);
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   z-index: 100;
+
+  h3 {
+    color: white;
+    margin-top: 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
 }
 
-.info-panel h3 {
-  color: white;
-  margin-top: 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+// 用户信息面板样式
+.user-info-panel {
+  .panel;
+  top: 20px;
+  left: 10px;
+}
+
+// 情报信息面板样式
+.info-panel {
+  .panel;
+  top: 20px;
+  right: 10px;
 }
 
 .info-list {
-  max-height: 500px;
+  // max-height: 500px;
   overflow-y: auto;
 }
 
@@ -613,11 +688,12 @@ onUnmounted(() => {
   transition: background-color 0.3s;
   padding: 4px;
   border-radius: 4px;
-}
+  width: 100%;
 
-.info-item.active,
-.info-item:hover {
-  background-color: rgba(0, 123, 255, 0.2);
+  &.active,
+  &:hover {
+    background-color: rgba(0, 123, 255, 0.2);
+  }
 }
 
 .info-text {
@@ -631,10 +707,8 @@ onUnmounted(() => {
 
 :deep(.ant-list-item) {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-:deep(.ant-tag) {
-  margin-right: 0;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .intel-dot {
@@ -651,5 +725,64 @@ onUnmounted(() => {
 :deep(.intel-dot .ant-tag) {
   border: none;
   padding: 0;
+}
+
+/* 标签容器样式 */
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+  width: 100%;
+  padding-left: 20px;
+  /* 与点的位置对齐 */
+
+  :deep(.ant-tag) {
+    margin-right: 0;
+    font-size: 11px;
+    padding: 0 6px;
+    border-radius: 10px;
+  }
+}
+
+/* 用户列表样式 */
+.user-list {
+  overflow-y: auto;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  padding: 4px;
+  border-radius: 4px;
+  width: 100%;
+
+  &.active,
+  &:hover {
+    background-color: rgba(0, 123, 255, 0.2);
+  }
+}
+
+.location-icon {
+  font-size: 16px;
+  // 添加发光效果
+  text-shadow: 0 0 8px currentColor;
+  color: rgba(0, 123, 255, 0.8);
+}
+
+.user-name {
+  flex: 1;
+}
+
+.user-value {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  background-color: rgba(0, 123, 255, 0.3);
+  padding: 2px 6px;
+  border-radius: 10px;
 }
 </style>

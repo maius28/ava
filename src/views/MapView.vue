@@ -3,19 +3,19 @@
     <div class="algorithm-buttons">
       <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'personalized' }"
         @click="selectAlgorithm('personalized')">
-        个性化推荐
+        态势推荐
       </a-button>
       <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'similarity' }"
         @click="selectAlgorithm('similarity')">
-        基于相似性信息推荐
-      </a-button>
-      <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'vector' }"
-        @click="selectAlgorithm('vector')">
-        基于向量化信息推荐
+        第二种算法
       </a-button>
       <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'sequence' }"
         @click="selectAlgorithm('sequence')">
-        基于用户行为序列推荐
+        第三种算法
+      </a-button>
+      <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'graph' }"
+        @click="selectAlgorithm('graph')">
+        跨域融合
       </a-button>
     </div>
     <!-- ChinaMap 组件 -->
@@ -30,7 +30,7 @@ import ChinaMap from '@/components/board/ChinaMap.vue';
 
 
 // 当前选中的算法
-const selectedAlgorithm = ref('personalized');
+const selectedAlgorithm = ref('');
 
 // 选择算法
 const selectAlgorithm = (algorithm: string) => {
@@ -48,39 +48,41 @@ const selectAlgorithm = (algorithm: string) => {
   height: 100%;
 }
 
-/* 右上角算法按钮样式 */
+/* 算法按钮样式 */
 .algorithm-buttons {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 10px; /* 调整到地图上方 */
+  left: 50%;
+  transform: translateX(-50%); /* 居中对齐 */
   z-index: 10;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row; /* 横向排列 */
+  gap: 15px; /* 按钮间距 */
 }
 
 .algo-button {
-  min-width: 180px;
+  min-width: 150px;
   height: 40px;
-  text-align: left;
+  text-align: center;
   border-radius: 4px;
   transition: all 0.3s;
-  opacity: 0.8;
+  opacity: 0.9;
   background-color: rgba(0, 21, 41, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .algo-button:hover {
   opacity: 1;
-  transform: translateX(-5px);
+  transform: scale(1.05); /* 鼠标悬停时放大 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .algo-button.active {
-  background-color: #1890ff;
+  background-color: #0050b3; /* 选中后颜色变深 */
   opacity: 1;
-  border-color: #1890ff;
-  box-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
+  border-color: #0050b3;
+  box-shadow: 0 0 10px rgba(0, 80, 179, 0.5);
 }
 
 /* 深色模态框样式 */
