@@ -1,5 +1,8 @@
 <!-- 情报抽取界面 -->
 <template>
+
+  <a-page-header style="border: 1px solid rgb(235, 237, 240)" title="态势推荐" sub-title="使用xx算法" @back="goBack" />
+
   <!-- 功能展示区域，展示当前页面的主要功能 -->
   <div class="content">
     <div class="input-section">
@@ -10,28 +13,6 @@
           <a-textarea v-model:value="intelText" placeholder="请输入需要分析的情报文本..." :rows="6"
             :auto-size="{ minRows: 6, maxRows: 10 }" allow-clear />
 
-        </div>
-
-        <!-- 文件上传 -->
-        <div class="file-upload">
-          <h3>上传情报文件</h3>
-          <a-upload :file-list="fileList" :before-upload="beforeUpload" @remove="handleRemove" :maxCount="1">
-            <a-button type="primary">
-              <upload-outlined /> 上传文本文件
-            </a-button>
-            <template #itemRender="{ file }">
-              <a-tooltip :title="file.name">
-                <div class="file-item">
-                  <file-text-outlined />
-                  <span class="file-name">{{ file.name }}</span>
-                  <a-button type="text" danger @click="() => handleRemove(file)">
-                    <delete-outlined />
-                  </a-button>
-                </div>
-              </a-tooltip>
-            </template>
-          </a-upload>
-          <div class="upload-hint">支持上传 .txt 格式的文本文件</div>
         </div>
       </div>
 
@@ -63,16 +44,6 @@
       </div>
 
       <div ref="visualizationArea">
-        <!-- 原始文本 -->
-        <div class="original-text" v-if="currentStep >= 0">
-          <h3>token</h3>
-          <div class="text-content">
-            <span v-for="(token, index) in tokens" :key="index" class="token"
-              :style="{ 'background-color': getTokenColor(token, index) }">
-              {{ token }}
-            </span>
-          </div>
-        </div>
 
         <!-- 实体识别 -->
         <div class="entity-recognition" v-if="currentStep >= 1">
@@ -115,22 +86,20 @@
 <script lang="ts" setup>
 import { ref, computed, nextTick } from 'vue';
 import {
-  UploadOutlined,
-  FileTextOutlined,
-  DeleteOutlined,
   ExperimentOutlined
 } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
 import * as echarts from 'echarts/core';
 import { TitleComponent, TooltipComponent } from 'echarts/components';
 import { GraphChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
+import { useRouter } from 'vue-router';
 
 echarts.use([TitleComponent, TooltipComponent, GraphChart, CanvasRenderer]);
 
+const router = useRouter();
+
 // 输入数据
 const intelText = ref('光学卫星发现一艘歼-16战机在2023年10月15日14时30分位于东海地区，坐标31.5°N123.2°E，航向120°，航速800公里/小时，隶属于空军，执行巡逻任务。');
-const fileList = ref([]);
 
 // 处理状态
 const extracting = ref(false);
@@ -143,37 +112,12 @@ const progressStatus = computed(() => {
 });
 const progressInfo = ref('准备就绪');
 
-// 抽取结果
-const tokens = ref([]);
 const entityCategories = ref([]);
 
 // 计算属性
 const canExtract = computed(() => {
-  return intelText.value.trim().length > 0 || fileList.value.length > 0;
+  return intelText.value.trim().length > 0;
 });
-
-// 文件上传处理
-const beforeUpload = (file) => {
-  const isTxt = file.type === 'text/plain';
-  if (!isTxt) {
-    message.error('只能上传TXT文件!');
-    return false;
-  }
-
-  // 读取文件内容
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    intelText.value = e.target.result;
-  };
-  reader.readAsText(file);
-
-  fileList.value = [file];
-  return false; // 阻止自动上传
-};
-
-const handleRemove = () => {
-  fileList.value = [];
-};
 
 const scrollToBottom = () => {
   window.scrollTo({
@@ -193,7 +137,6 @@ const startExtraction = async () => {
 
   // 模拟各个步骤的处理过程
   await simulateStep(0, '提取完毕...', 25);
-  generateTokens();
 
   await simulateStep(1, '实体构建...', 50);
   generateEntities();
@@ -224,14 +167,6 @@ const simulateStep = async (step, info, progress) => {
       resolve(true);
     }, 1500); // 每个步骤模拟1.5秒
   });
-};
-
-// 生成分词结果
-const generateTokens = () => {
-  const text = intelText.value;
-  // 简单分词模拟 - 实际应用中应使用专业分词库
-  const words = text.split(/\s+|，|。|；|！|？|,|\.|\?|!|;/).filter(w => w.trim());
-  tokens.value = [...new Set(words)]; // 去重
 };
 
 // 生成实体识别结果
@@ -265,24 +200,7 @@ const generateRelationships = () => {
 
 };
 
-// 定义颜色数组
-const colorPalette = [
-  '#ff0000', // 红色
-  '#ff4500', // 橙红色
-  '#ff8c00', // 橙色
-  '#ffd700', // 金黄色
-  '#9acd32', // 黄绿色
-  '#32cd32', // 绿色
-  '#00ced1', // 青色
-  '#1e90ff', // 蓝色
-  '#4b0082', // 靛蓝色
-  '#9400d3', // 紫色
-];
 
-// 根据 token 的索引获取颜色
-const getTokenColor = (token, index) => {
-  return colorPalette[index % colorPalette.length];
-};
 
 const generateRelationGraph = () => {
   const chartDom = document.getElementById('graph-container');
@@ -399,6 +317,14 @@ const generateRelationGraph = () => {
 
 }
 
+
+const goBack = () => {
+  if (window.history.length > 1) {
+    router.back(); // 如果有上一页，则返回上一页
+  } else {
+    router.push('/'); // 如果没有上一页，则返回首页
+  }
+};
 </script>
 
 <style scoped>

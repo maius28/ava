@@ -47,14 +47,14 @@
           </a-list-item>
         </template>
       </a-list>
-      <a-button type="primary" size="big">算法详情</a-button>
+      <a-button type="primary" class="algorithm-detail-btn" @click="goToDetail()">算法详情</a-button>
     </div>
 
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, reactive, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import * as echarts from 'echarts/core';
 import { MapChart, EffectScatterChart, ScatterChart, LinesChart } from 'echarts/charts';
 // import { Map3DChart } from 'echarts-gl/charts';
@@ -69,6 +69,7 @@ import {
 import { use } from 'echarts/core';
 import ChinaJson from '@/assets/china.json';
 import { EnvironmentOutlined } from '@ant-design/icons-vue';
+import router from '@/router';
 
 // 注册必要的ECharts组件
 use([
@@ -100,6 +101,32 @@ watch(() => props.algorithm, (newAlgorithm: string) => {
 });
 
 
+const goToDetail = () => {
+  // 根据选个的算法跳转到不同的详情页面
+  if (!props.algorithm) {
+    console.warn('未选择算法，无法跳转到详情页面');
+    return;
+  }
+  switch (props.algorithm) {
+    case 'personalized':
+      //跳转到router.js的/extraction
+      console.log('跳转到个性化推荐算法详情页面');
+      router.push('/extraction');
+      break;
+    case 'similarity':
+      router.push({
+        name: 'recommend',
+        query: { algorithm: 'similarity' }
+      });
+      break;
+    case 'content-based':
+      console.log('跳转到基于内容的算法详情页面');
+      break;
+    default:
+      console.warn(`未知算法: ${props.algorithm}`);
+      return;
+  }
+};
 
 // 定义一组颜色数组
 const colorPalette = [
@@ -784,5 +811,44 @@ onUnmounted(() => {
   background-color: rgba(0, 123, 255, 0.3);
   padding: 2px 6px;
   border-radius: 10px;
+}
+
+// 算法详情按钮样式
+.algorithm-detail-btn {
+  width: 100%; // 与情报信息面板宽度一致
+  margin-top: 16px; // 增加与上方列表的间距
+  font-size: 18px; // 设置字体大小
+  font-weight: bold; // 加粗字体
+  height: auto; // 自适应高度
+  padding: 10px 0; // 上下增加内边距使按钮更高
+  border-radius: 6px; // 圆角边框
+  background: linear-gradient(45deg, #1890ff, #2c5baf); // 渐变背景
+  border: none; // 移除边框
+  animation: pulse 1.5s infinite; // 添加闪动动画
+
+  // 悬停效果
+  &:hover {
+    background: linear-gradient(45deg, #40a9ff, #4c77cc); // 更亮的渐变色
+    box-shadow: 0 0 15px rgba(24, 144, 255, 0.6); // 悬停时增加发光效果
+    animation: none; // 悬停时停止动画
+  }
+}
+
+// 闪动动画定义
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.4);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
+    transform: scale(1.02);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+    transform: scale(1);
+  }
 }
 </style>

@@ -1,4 +1,5 @@
 <template>
+  <a-page-header title="第二种算法" subTitle="使用xx算法" @back="() => { }"></a-page-header>
   <div class="recommend-view">
     <!-- 左侧用户列表 -->
     <div class="user-list-container">

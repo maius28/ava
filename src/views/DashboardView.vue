@@ -3,11 +3,7 @@
   <div class="dashboard-container">
     <a-card class="stats-card" title="情报状态统计">
       <div class="stats-wrapper">
-        <a-statistic
-          v-for="(stat, index) in statusStats"
-          :key="index"
-          :value="stat.count"
-          :title="stat.label"
+        <a-statistic v-for="(stat, index) in statusStats" :key="index" :value="stat.count" :title="stat.label"
           :class="`status-${stat.status}`">
           <template #footer>
             <div class="stat-footer">
@@ -24,11 +20,7 @@
     <a-card class="filter-card">
       <a-form layout="inline">
         <a-form-item label="状态">
-          <a-select
-            v-model:value="filterStatus"
-            style="width: 150px"
-            placeholder="选择状态"
-            allowClear>
+          <a-select v-model:value="filterStatus" style="width: 150px" placeholder="选择状态" allowClear>
             <a-select-option value="">全部</a-select-option>
             <a-select-option value="pending_extract">待抽取</a-select-option>
             <a-select-option value="pending_relate">待关联</a-select-option>
@@ -50,14 +42,8 @@
     </a-card>
 
     <a-card class="table-card">
-      <a-table
-        :columns="columns"
-        :data-source="intelligenceData"
-        :rowKey="record => record.id"
-        :pagination="pagination"
-        :loading="loading"
-        @change="handleTableChange"
-      >
+      <a-table :columns="columns" :data-source="intelligenceData" :rowKey="record => record.id" :pagination="pagination"
+        :loading="loading" @change="handleTableChange">
         <!-- 定制表格列 -->
         <template #bodyCell="{ column, record }">
           <!-- 坐标列 -->
@@ -67,11 +53,7 @@
 
           <!-- 图像列 -->
           <template v-if="column.key === 'image'">
-            <a-image
-              :width="60"
-              :src="record.imageUrl"
-
-            />
+            <a-image :width="60" :src="record.imageUrl" />
           </template>
 
           <!-- 状态列 -->
@@ -84,17 +66,11 @@
           <!-- 操作列 -->
           <template v-if="column.key === 'action'">
             <div class="action-buttons">
-              <a-button
-                type="link"
-                size="small"
-                @click="viewPushedUsers(record.id)"
+              <a-button type="link" size="small" @click="viewPushedUsers(record.id)"
                 :disabled="record.status !== 'pushed'">
                 查看已推送用户
               </a-button>
-              <a-button
-                type="link"
-                size="small"
-                @click="viewIntelligenceProfile(record.id)">
+              <a-button type="link" size="small" @click="viewIntelligenceProfile(record.id)">
                 查看情报画像
               </a-button>
             </div>
@@ -104,21 +80,11 @@
     </a-card>
 
     <!-- 查看已推送用户的模态框 -->
-    <a-modal
-      v-model:visible="pushModalVisible"
-      title="已推送用户"
-      width="600px"
-      :footer="null"
-    >
-      <a-list
-        item-layout="horizontal"
-        :data-source="pushedUsers"
-      >
+    <a-modal v-model:visible="pushModalVisible" title="已推送用户" width="600px" :footer="null">
+      <a-list item-layout="horizontal" :data-source="pushedUsers">
         <template #renderItem="{ item }">
           <a-list-item>
-            <a-list-item-meta
-              :description="`推送时间: ${item.pushTime}`"
-            >
+            <a-list-item-meta :description="`推送时间: ${item.pushTime}`">
               <template #title>
                 <a>{{ item.name }}</a>
               </template>
@@ -135,12 +101,7 @@
     </a-modal>
 
     <!-- 查看情报画像的模态框 -->
-    <a-modal
-      v-model:visible="profileModalVisible"
-      title="情报画像"
-      width="800px"
-      :footer="null"
-    >
+    <a-modal v-model:visible="profileModalVisible" title="情报画像" width="800px" :footer="null">
       <div v-if="currentIntelligence" class="intel-profile">
         <div class="profile-header">
           <h2>情报ID: {{ currentIntelligence.id }}</h2>
@@ -169,22 +130,15 @@
 
         <div class="profile-image">
           <h3>遥感图像</h3>
-          <a-image
-            :width="400"
-            :src="currentIntelligence.imageUrl"
-          />
+          <a-image :width="400" :src="currentIntelligence.imageUrl" />
         </div>
 
         <a-divider orientation="left">关联情报</a-divider>
-        <a-list
-          size="small"
-          bordered
-          :data-source="relatedIntelligence"
-        >
+        <a-list size="small" bordered :data-source="relatedIntelligence">
           <template #renderItem="{ item }">
             <a-list-item>
               <a @click="viewIntelligenceProfile(item.id)">
-                {{item.id}} - {{item.content.substring(0, 30)}}...
+                {{ item.id }} - {{ item.content.substring(0, 30) }}...
               </a>
             </a-list-item>
           </template>
@@ -195,7 +149,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
@@ -318,7 +272,7 @@ const generateMockData = () => {
       latitude: (20 + Math.random() * 25).toFixed(6),
       longitude: (100 + Math.random() * 30).toFixed(6),
       satelliteId: satellites[Math.floor(Math.random() * satellites.length)],
-      imageUrl: `https://picsum.photos/id/${i+100}/200/200`,
+      imageUrl: ``,
       content: `在区域${i}发现异常活动，疑似有${Math.floor(Math.random() * 10) + 1}个不明目标在进行可疑操作。建议加强监控并派出侦察队伍进行调查。`,
       eventTime: dayjs(eventTime).format('YYYY-MM-DD HH:mm:ss'),
       receiveTime: dayjs(receiveTime).format('YYYY-MM-DD HH:mm:ss'),
@@ -396,7 +350,7 @@ const viewIntelligenceProfile = (id) => {
         const relatedId = intelligenceData.value[Math.floor(Math.random() * intelligenceData.value.length)].id;
         return intelligenceData.value.find(item => item.id === relatedId) || {
           id: `INT-${Math.floor(Math.random() * 1000) + 10000}`,
-          content: `相关情报${index+1}，包含与当前情报相似的目标活动`,
+          content: `相关情报${index + 1}，包含与当前情报相似的目标活动`,
         };
       });
 

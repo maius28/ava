@@ -11,11 +11,7 @@
       </a-button>
       <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'sequence' }"
         @click="selectAlgorithm('sequence')">
-        第三种算法
-      </a-button>
-      <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'graph' }"
-        @click="selectAlgorithm('graph')">
-        跨域融合
+        第三种
       </a-button>
     </div>
     <!-- ChinaMap 组件 -->
@@ -30,7 +26,7 @@ import ChinaMap from '@/components/board/ChinaMap.vue';
 
 
 // 当前选中的算法
-const selectedAlgorithm = ref('');
+const selectedAlgorithm = ref('personalized');
 
 // 选择算法
 const selectAlgorithm = (algorithm: string) => {
@@ -48,41 +44,43 @@ const selectAlgorithm = (algorithm: string) => {
   height: 100%;
 }
 
-/* 算法按钮样式 */
+/* 右上角算法按钮样式 */
 .algorithm-buttons {
   position: absolute;
-  top: 10px; /* 调整到地图上方 */
+  top: 10px;
+  /* 距离顶部的距离 */
   left: 50%;
-  transform: translateX(-50%); /* 居中对齐 */
-  z-index: 10;
+  /* 水平居中 */
+  transform: translateX(-50%);
+  /* 水平居中对齐 */
   display: flex;
-  flex-direction: row; /* 横向排列 */
-  gap: 15px; /* 按钮间距 */
+  gap: 10px;
+  /* 按钮之间的间距 */
+  z-index: 10;
+  /* 半透明背景 */
+  padding: 10px 20px;
+  /* 内边距 */
+  border-radius: 8px;
+  /* 圆角 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  /* 阴影效果 */
+
+
 }
 
 .algo-button {
-  min-width: 150px;
-  height: 40px;
+  flex: 1;
+  /* 按钮等宽 */
   text-align: center;
   border-radius: 4px;
   transition: all 0.3s;
-  opacity: 0.9;
-  background-color: rgba(0, 21, 41, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-.algo-button:hover {
-  opacity: 1;
-  transform: scale(1.05); /* 鼠标悬停时放大 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .algo-button.active {
-  background-color: #0050b3; /* 选中后颜色变深 */
-  opacity: 1;
-  border-color: #0050b3;
-  box-shadow: 0 0 10px rgba(0, 80, 179, 0.5);
+  background-color: #1890ff;
+  color: #fff;
+  border-color: #1890ff;
+  box-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
 }
 
 /* 深色模态框样式 */
