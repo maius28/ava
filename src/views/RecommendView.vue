@@ -12,7 +12,7 @@
       </a-select>
       <!-- 显示当前选中的区域 -->
       <div v-if="selectedRegion" class="selected-region">
-        当前选中区域：<strong>{{ selectedRegion }}</strong>
+        当前选中区域：<strong>{{ selectedRegion }}</strong>````````````
       </div>
       <!-- 用户列表 -->
       <a-list bordered :data-source="filteredUsers" class="user-list">
