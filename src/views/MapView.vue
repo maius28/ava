@@ -13,6 +13,10 @@
         @click="selectAlgorithm('sequence')">
         第三种
       </a-button>
+      <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'custom' }"
+        @click="selectAlgorithm('crossDomain')">
+        跨域场景
+      </a-button>
     </div>
     <!-- ChinaMap 组件 -->
     <ChinaMap :algorithm="selectedAlgorithm" />
