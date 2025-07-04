@@ -19,7 +19,7 @@ const username = computed(() => authStore.userInfo?.username || '');
 // 菜单配置映射表
 const menuMap: Record<string, string> = {
   '/dashboard': '实时监控',
-  '/userTag': '基础信息',
+  '/userTags': '基础信息',
   '/mapView': '算法演示',
   '/intel': '情报收件箱',
   // 可扩展更多
