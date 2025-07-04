@@ -39,7 +39,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { login, type LoginParams } from '@/api/auth';
-
+import { useAuthStore } from '@/stores/auth';
 const router = useRouter();
 const loading = ref(false);
 
@@ -73,14 +73,20 @@ const handleLogin = async () => {
 
         // 存储用户信息
         if (rememberMe.value) {
-          localStorage.setItem('userInfo', JSON.stringify(response.data?.user));
+          localStorage.setItem('userInfo', JSON.stringify(response.data));
         } else {
-          sessionStorage.setItem('userInfo', JSON.stringify(response.data?.user));
+          sessionStorage.setItem('userInfo', JSON.stringify(response.data));
         }
       }
 
       // 跳转到首页
-      router.push('/dashboard');
+      // 跳转到有权限的主页面
+      const permissionUrls = response.data?.permissionUrls || [];
+      if (permissionUrls.length > 0) {
+        router.push(permissionUrls[0]);
+      }
+      const authStore = useAuthStore();
+      authStore.login(response.data, rememberMe.value)
     } else {
       // 登录失败
       message.error(response.message || '登录失败');

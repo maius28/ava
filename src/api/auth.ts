@@ -13,11 +13,10 @@ export interface LoginResponse {
   message: string
   data?: {
     token: string
-    user: {
-      id: number
-      username: string
-      [key: string]: any // 其他可能的用户信息字段
-    }
+    userId: number
+    username: string
+    permissionUrls: string[]
+    roleId: number
   }
 }
 
@@ -36,12 +35,4 @@ export function login(params: LoginParams): Promise<LoginResponse> {
  */
 export function logout(): Promise<any> {
   return post<any>('/logout')
-}
-
-/**
- * 获取当前用户信息
- * @returns Promise<any>
- */
-export function getUserInfo(): Promise<any> {
-  return post<any>('/user/info')
 }

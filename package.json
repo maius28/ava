@@ -20,6 +20,7 @@
     "echarts-gl": "^2.0.9",
     "less": "^4.3.0",
     "less-loader": "^12.3.0",
+    "pinia": "^3.0.3",
     "tokenizer": "^0.1.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"

@@ -11,7 +11,12 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('@/views/DashboardView.vue'),
+      component: () => import('@/views/AdminIntelView.vue'),
+    },
+    {
+      path: '/intel',
+      name: 'intel',
+      component: () => import('@/views/UserIntelView.vue'),
     },
     {
       path: '/mapView',
@@ -88,6 +93,32 @@ const router = createRouter({
       },
     },
   ],
+})
+
+// 路由白名单
+const whiteList = ['/login']
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  // 1. 根路径重定向
+  if (to.path === '/') {
+    if (!token) {
+      next('/login')
+    } else {
+      // 已登录，跳转到主页面（可根据用户权限跳转，见下方）
+      // 这里先跳dashboard，登录后再做更细致跳转
+      next('/dashboard')
+    }
+    return
+  }
+
+  // 2. 其他页面权限校验
+  if (!token && !whiteList.includes(to.path)) {
+    next('/login')
+    return
+  }
+
+  next()
 })
 
 export default router
