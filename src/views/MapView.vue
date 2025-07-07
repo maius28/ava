@@ -26,7 +26,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import ChinaMap from '@/components/board/ChinaMap.vue';
+import ChinaMap from '@/components/ChinaMap.vue';
 
 
 // 当前选中的算法
@@ -74,10 +74,20 @@ const selectAlgorithm = (algorithm: string) => {
 
 .algo-button {
   flex: 1;
-  /* 按钮等宽 */
   text-align: center;
   border-radius: 4px;
   transition: all 0.3s;
+  background: transparent;
+  color: #edf0f3;
+  border: 1px solid #1890ff;
+  font-weight: 500;
+
+}
+
+.algo-button:not(.active):hover {
+  background: rgba(24, 144, 255, 0.08);
+  color: #1890ff;
+  border-color: #40a9ff;
 }
 
 .algo-button.active {
@@ -86,6 +96,7 @@ const selectAlgorithm = (algorithm: string) => {
   border-color: #1890ff;
   box-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
 }
+
 
 /* 深色模态框样式 */
 :deep(.dark-modal .ant-modal-content) {

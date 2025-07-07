@@ -19,7 +19,7 @@ const username = computed(() => authStore.userInfo?.username || '');
 // 菜单配置映射表
 const menuMap: Record<string, string> = {
   '/dashboard': '实时监控',
-  '/userTags': '基础信息',
+  '/userTag': '基础信息',
   '/mapView': '算法演示',
   '/intel': '情报收件箱',
   // 可扩展更多
@@ -56,7 +56,7 @@ function logout() {
       <a-layout-header style="display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center;">
           <div class="logo" />
-          <a href="/" style="color: white; margin: 0; font-size: 20px;"> 多域战场态势信息管理</a>
+          <a style="color: white; margin: 0; font-size: 20px;"> 多域战场态势信息管理</a>
           <a-menu mode="horizontal" theme="dark" :selectedKeys="selectedKeys"
             style="margin-left: 40px; display: inline-block; vertical-align: middle; background: transparent; border-bottom: none;">
             <a-menu-item v-for="item in menuItems" :key="item.key">

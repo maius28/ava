@@ -37,3 +37,23 @@ npm run build
 ```sh
 npm run lint
 ```
+
+# Docker 部署
+
+## 构建镜像
+
+```bash
+docker build -t algorithm-visualizer-antdv .
+```
+
+## 运行容器
+
+```bash
+docker run -d -p 80:80 --name algorithm-visualizer-antdv algorithm-visualizer-antdv
+```
+
+访问：<http://localhost/>
+
+---
+
+// ... existing code ...

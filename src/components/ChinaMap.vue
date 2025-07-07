@@ -12,11 +12,7 @@
             </div>
             <!-- 添加标签列表 -->
             <div class="tag-container">
-              <a-tag
-                v-for="(tag, tagIndex) in item.tags"
-                :key="tagIndex"
-                :color="getTagColor(tagIndex)"
-              >
+              <a-tag v-for="(tag, tagIndex) in item.tags" :key="tagIndex" :color="getTagColor(tagIndex)">
                 {{ tag }}
               </a-tag>
             </div>
@@ -40,32 +36,25 @@
         <template #renderItem="{ item }">
           <a-list-item>
             <div class="info-item">
-              <a-tag
-                class="intel-dot"
-                :style="{
-                  backgroundColor: getColorById(item.id),
-                  boxShadow: `0 0 10px ${getColorById(item.id)}`,
-                }"
-              ></a-tag>
+              <a-tag class="intel-dot" :style="{
+                backgroundColor: getColorById(item.id),
+                boxShadow: `0 0 10px ${getColorById(item.id)}`,
+              }"></a-tag>
               <span class="info-text">{{ item.text }}</span>
               <span class="info-time">{{ item.time }}</span>
             </div>
             <!-- 添加标签列表 -->
             <div class="tag-container">
-              <a-tag
-                v-for="(tag, tagIndex) in item.tags"
-                :key="tagIndex"
-                :color="getTagColor(tagIndex)"
-              >
+              <a-tag v-for="(tag, tagIndex) in item.tags" :key="tagIndex" :color="getTagColor(tagIndex)">
                 {{ tag }}
               </a-tag>
             </div>
           </a-list-item>
         </template>
       </a-list>
-      <a-button type="primary" class="algorithm-detail-btn" @click="goToDetail()" v-if="props.algorithm !== 'crossDomain'">
-        算法详情</a-button
-      >
+      <a-button type="primary" class="algorithm-detail-btn" @click="goToDetail()"
+        v-if="props.algorithm !== 'crossDomain'">
+        算法详情</a-button>
     </div>
   </div>
 </template>
@@ -137,7 +126,6 @@ const goToDetail = () => {
   switch (props.algorithm) {
     case 'personalized':
       //跳转到router.js的/extraction
-      console.log('跳转到个性化推荐算法详情页面')
       router.push('/extraction')
       break
     case 'similarity':
@@ -899,7 +887,7 @@ const updateMapCollaborative = () => {
 
 onMounted(() => {
   initChart()
-
+  updateMapWithAlgorithm(props.algorithm) // 初始化时主动渲染地图
   // Initialize target chart if algorithm is crossDomain
   if (props.algorithm === 'crossDomain') {
     nextTick(() => {

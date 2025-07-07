@@ -1,7 +1,7 @@
 <!-- 情报监控页面 -->
 <template>
   <div class="dashboard-container">
-    <a-card class="stats-card" title="情报状态统计">
+    <a-card class="stats-card">
       <div class="stats-wrapper">
         <a-statistic v-for="(stat, index) in statusStats" :key="index" :value="stat.count" :title="stat.label"
           :class="`status-${stat.status}`">
@@ -80,7 +80,7 @@
     </a-card>
 
     <!-- 查看已推送用户的模态框 -->
-    <a-modal v-model:visible="pushModalVisible" title="已推送用户" width="600px" :footer="null">
+    <a-modal v-model:open="pushModalVisible" title="已推送用户" width="600px" :footer="null">
       <a-list item-layout="horizontal" :data-source="pushedUsers">
         <template #renderItem="{ item }">
           <a-list-item>
@@ -111,7 +111,7 @@
         </div>
 
         <a-descriptions bordered>
-          <a-descriptions-item label="位置" span="3">
+          <a-descriptions-item label="位置" span="1">
             {{ currentIntelligence.latitude }}°, {{ currentIntelligence.longitude }}°
           </a-descriptions-item>
           <a-descriptions-item label="卫星编号">
@@ -133,6 +133,8 @@
           <a-image :width="400" :src="currentIntelligence.imageUrl" />
         </div>
 
+        <RelationGraph :graphData="graphData" height="300px" />
+
         <a-divider orientation="left">关联情报</a-divider>
         <a-list size="small" bordered :data-source="relatedIntelligence">
           <template #renderItem="{ item }">
@@ -152,6 +154,26 @@
 import { ref, reactive, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
+import demoImg from '@/assets/images/demo.jpeg';
+import RelationGraph from '@/components/RelationGraph.vue'
+
+const graphData = ref({
+  nodes: [
+    { name: '歼-16战机', x: 100, y: 100 },
+    { name: '情报10331号', x: 300, y: 300 },
+    { name: '2023年10月15日14时30分', x: 500, y: 100 },
+    { name: '东海', x: 500, y: 500 },
+    { name: '巡逻任务', x: 100, y: 500 }
+  ],
+  links: [
+    { source: '情报10331号', target: '歼-16战机', label: { show: true, formatter: '目标舰机型' } },
+    { source: '情报10331号', target: '2023年10月15日14时30分', label: { show: true, formatter: '时间' } },
+    { source: '情报10331号', target: '巡逻任务', label: { show: true, formatter: '任务类型' } },
+    { source: '情报10331号', target: '东海', label: { show: true, formatter: '地区' } },
+    { source: '巡逻任务', target: '东海', label: { show: true, formatter: '执行于' } },
+    { source: '歼-16战机', target: '巡逻任务', label: { show: true, formatter: '执行' } },
+  ]
+});
 
 // 状态统计数据
 const statusStats = reactive([
@@ -272,7 +294,7 @@ const generateMockData = () => {
       latitude: (20 + Math.random() * 25).toFixed(6),
       longitude: (100 + Math.random() * 30).toFixed(6),
       satelliteId: satellites[Math.floor(Math.random() * satellites.length)],
-      imageUrl: ``,
+      imageUrl: demoImg,
       content: `在区域${i}发现异常活动，疑似有${Math.floor(Math.random() * 10) + 1}个不明目标在进行可疑操作。建议加强监控并派出侦察队伍进行调查。`,
       eventTime: dayjs(eventTime).format('YYYY-MM-DD HH:mm:ss'),
       receiveTime: dayjs(receiveTime).format('YYYY-MM-DD HH:mm:ss'),
@@ -346,7 +368,7 @@ const viewIntelligenceProfile = (id) => {
       currentIntelligence.value = intelligence;
 
       // 生成模拟关联情报数据
-      relatedIntelligence.value = Array(Math.floor(Math.random() * 4) + 1).fill(0).map((_, index) => {
+      relatedIntelligence.value = Array(Math.floor(Math.random() * 2) + 1).fill(0).map((_, index) => {
         const relatedId = intelligenceData.value[Math.floor(Math.random() * intelligenceData.value.length)].id;
         return intelligenceData.value.find(item => item.id === relatedId) || {
           id: `INT-${Math.floor(Math.random() * 1000) + 10000}`,

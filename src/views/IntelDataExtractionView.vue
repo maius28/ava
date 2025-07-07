@@ -71,10 +71,9 @@
 
         <!-- 关系图 -->
         <div class="final-result">
-          <div class="text-content " v-if="currentStep >= 3">
-            <div id="graph-container" style="height: 300px;">
-            </div>
-          </div>
+
+          <RelationGraph :graphData="graphData" height="300px" v-if="currentStep >= 3" />
+          <!-- <div id="graph-container" style="height: 300px;"></div> -->
         </div>
 
       </div>
@@ -93,6 +92,7 @@ import { TitleComponent, TooltipComponent } from 'echarts/components';
 import { GraphChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useRouter } from 'vue-router';
+import RelationGraph from '@/components/RelationGraph.vue'
 
 echarts.use([TitleComponent, TooltipComponent, GraphChart, CanvasRenderer]);
 
@@ -146,9 +146,10 @@ const startExtraction = async () => {
   // generateKeywords();
 
   await simulateStep(3, '提取可视化...', 100);
-  generateRelationGraph();
+  // generateRelationGraph();
 
   // 完成处理
+  progressPercent.value = 100;     // 确保进度条为100%
   progressInfo.value = '提取完成';
   extracting.value = false;
 
@@ -200,122 +201,138 @@ const generateRelationships = () => {
 
 };
 
+const graphData = ref({
+  nodes: [
+    { name: '歼-16战机', x: 100, y: 100 },
+    { name: '情报10331号', x: 300, y: 300 },
+    { name: '2023年10月15日14时30分', x: 500, y: 100 },
+    { name: '东海', x: 500, y: 500 },
+    { name: '巡逻任务', x: 100, y: 500 }
+  ],
+  links: [
+    { source: '情报10331号', target: '歼-16战机', label: { show: true, formatter: '目标舰机型' } },
+    { source: '情报10331号', target: '2023年10月15日14时30分', label: { show: true, formatter: '时间' } },
+    { source: '情报10331号', target: '巡逻任务', label: { show: true, formatter: '任务类型' } },
+    { source: '情报10331号', target: '东海', label: { show: true, formatter: '地区' } },
+    { source: '巡逻任务', target: '东海', label: { show: true, formatter: '执行于' } },
+    { source: '歼-16战机', target: '巡逻任务', label: { show: true, formatter: '执行' } },
+  ]
+});
 
+// const generateRelationGraph = () => {
+//   const chartDom = document.getElementById('graph-container');
+//   const myChart = echarts.init(chartDom);
+//   const option = {
+//     title: {
+//       text: '关系图'
+//     },
+//     tooltip: {},
+//     animationDurationUpdate: 1500,
+//     animationEasingUpdate: 'quinticInOut',
+//     series: [
+//       {
+//         type: 'graph',
+//         layout: 'none',
+//         symbolSize: 50,
+//         roam: true, // 允许缩放和平移
+//         label: {
+//           show: true
+//         },
+//         edgeSymbol: ['circle', 'arrow'],
+//         edgeSymbolSize: [10, 20], // 设置边的符号大小
+//         edgeLabel: {
+//           fontSize: 20
+//         },
+//         data: [
+//           {
+//             name: '歼-16战机',
+//             x: 100,
+//             y: 100
+//           },
+//           {
+//             name: '情报10331号',
+//             x: 300,
+//             y: 300
+//           },
+//           {
+//             name: '2023年10月15日14时30分',
+//             x: 500,
+//             y: 100
+//           },
+//           {
+//             name: '东海',
+//             x: 500,
+//             y: 500
+//           },
+//           {
+//             name: '巡逻任务',
+//             x: 100,
+//             y: 500
+//           }
+//         ],
+//         links: [
+//           {
+//             source: '情报10331号',
+//             target: '歼-16战机',
+//             symbolSize: [5, 20],
+//             label: {
+//               show: true,
+//               formatter: '目标舰机型',
+//             },
+//           },
+//           {
+//             source: '情报10331号',
+//             target: '2023年10月15日14时30分',
+//             label: {
+//               show: true,
+//               formatter: '时间'
+//             },
+//           },
+//           {
+//             source: '情报10331号',
+//             target: '巡逻任务',
+//             label: {
+//               show: true,
+//               formatter: '任务类型'
+//             },
+//           },
+//           {
+//             source: '情报10331号',
+//             target: '东海',
+//             label: {
+//               show: true,
+//               formatter: '地区'
+//             },
+//           },
+//           {
+//             source: '巡逻任务',
+//             target: '东海',
+//             label: {
+//               show: true,
+//               formatter: '执行于'
+//             },
+//           },
+//           {
+//             source: '歼-16战机',
+//             target: '巡逻任务',
+//             label: {
+//               show: true,
+//               formatter: '执行'
+//             },
+//           },
+//         ],
+//         lineStyle: {
+//           opacity: 0.9,
+//           width: 3,
+//           // curveness: 0.5
+//         }
+//       }
+//     ]
+//   };
 
-const generateRelationGraph = () => {
-  const chartDom = document.getElementById('graph-container');
-  const myChart = echarts.init(chartDom);
-  const option = {
-    title: {
-      text: '关系图'
-    },
-    tooltip: {},
-    animationDurationUpdate: 1500,
-    animationEasingUpdate: 'quinticInOut',
-    series: [
-      {
-        type: 'graph',
-        layout: 'none',
-        symbolSize: 50,
-        roam: true, // 允许缩放和平移
-        label: {
-          show: true
-        },
-        edgeSymbol: ['circle', 'arrow'],
-        edgeSymbolSize: [10, 20], // 设置边的符号大小
-        edgeLabel: {
-          fontSize: 20
-        },
-        data: [
-          {
-            name: '歼-16战机',
-            x: 100,
-            y: 100
-          },
-          {
-            name: '情报10331号',
-            x: 300,
-            y: 300
-          },
-          {
-            name: '2023年10月15日14时30分',
-            x: 500,
-            y: 100
-          },
-          {
-            name: '东海',
-            x: 500,
-            y: 500
-          },
-          {
-            name: '巡逻任务',
-            x: 100,
-            y: 500
-          }
-        ],
-        links: [
-          {
-            source: '情报10331号',
-            target: '歼-16战机',
-            symbolSize: [5, 20],
-            label: {
-              show: true,
-              formatter: '目标舰机型',
-            },
-          },
-          {
-            source: '情报10331号',
-            target: '2023年10月15日14时30分',
-            label: {
-              show: true,
-              formatter: '时间'
-            },
-          },
-          {
-            source: '情报10331号',
-            target: '巡逻任务',
-            label: {
-              show: true,
-              formatter: '任务类型'
-            },
-          },
-          {
-            source: '情报10331号',
-            target: '东海',
-            label: {
-              show: true,
-              formatter: '地区'
-            },
-          },
-          {
-            source: '巡逻任务',
-            target: '东海',
-            label: {
-              show: true,
-              formatter: '执行于'
-            },
-          },
-          {
-            source: '歼-16战机',
-            target: '巡逻任务',
-            label: {
-              show: true,
-              formatter: '执行'
-            },
-          },
-        ],
-        lineStyle: {
-          opacity: 0.9,
-          width: 3,
-          // curveness: 0.5
-        }
-      }
-    ]
-  };
+//   myChart.setOption(option, true);
 
-  myChart.setOption(option, true);
-
-}
+// }
 
 
 const goBack = () => {
