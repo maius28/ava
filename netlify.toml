@@ -1,0 +1,17 @@
+# netlify.toml
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# 强制所有资源使用相对路径
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Type = "text/html; charset=utf-8"
+    Cache-Control = "no-cache"
+
+# 处理单页应用路由
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
