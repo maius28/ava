@@ -12,6 +12,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  base: '/algorithm-visualizer-antdv/', // 改为你的仓库名
   // 设置开发服务器代理，临时解决跨域问题
   server: {
     proxy: {
