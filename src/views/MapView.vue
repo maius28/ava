@@ -1,17 +1,17 @@
 <template>
   <div class="intel-recommend-container">
     <div class="algorithm-buttons">
-      <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'personalized' }"
-        @click="selectAlgorithm('personalized')">
+      <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'coldStart' }"
+        @click="selectAlgorithm('coldStart')">
         态势推荐
+      </a-button>
+      <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'comprehensive' }"
+        @click="selectAlgorithm('comprehensive')">
+        综合推荐
       </a-button>
       <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'similarity' }"
         @click="selectAlgorithm('similarity')">
-        第二种算法
-      </a-button>
-      <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'sequence' }"
-        @click="selectAlgorithm('sequence')">
-        第三种
+        相似度/向量化推荐
       </a-button>
       <a-button type="primary" class="algo-button" :class="{ active: selectedAlgorithm === 'custom' }"
         @click="selectAlgorithm('crossDomain')">
@@ -30,7 +30,7 @@ import ChinaMap from '@/components/ChinaMap.vue';
 
 
 // 当前选中的算法
-const selectedAlgorithm = ref('personalized');
+const selectedAlgorithm = ref('coldStart');
 
 // 选择算法
 const selectAlgorithm = (algorithm: string) => {

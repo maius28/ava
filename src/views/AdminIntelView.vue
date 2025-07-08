@@ -22,8 +22,7 @@
         <a-form-item label="状态">
           <a-select v-model:value="filterStatus" style="width: 150px" placeholder="选择状态" allowClear>
             <a-select-option value="">全部</a-select-option>
-            <a-select-option value="pending_extract">待抽取</a-select-option>
-            <a-select-option value="pending_relate">待关联</a-select-option>
+            <a-select-option value="pending_extract">待推荐</a-select-option>
             <a-select-option value="pending_push">待推送</a-select-option>
             <a-select-option value="pushed">已推送</a-select-option>
           </a-select>
@@ -42,10 +41,10 @@
     </a-card>
 
     <a-card class="table-card">
-      <a-table :columns="columns" :data-source="intelligenceData" :rowKey="record => record.id" :pagination="pagination"
-        :loading="loading" @change="handleTableChange">
+      <a-table :columns="columns" :data-source="intelligenceData" :rowKey="(record: Intelligence) => record.id"
+        :pagination="pagination" :loading="loading" @change="handleTableChange">
         <!-- 定制表格列 -->
-        <template #bodyCell="{ column, record }">
+        <template #bodyCell="{ column, record }: { column: any, record: Intelligence }">
           <!-- 坐标列 -->
           <template v-if="column.key === 'coordinates'">
             <span>{{ record.latitude }}°, {{ record.longitude }}°</span>
@@ -80,28 +79,31 @@
     </a-card>
 
     <!-- 查看已推送用户的模态框 -->
-    <a-modal v-model:open="pushModalVisible" title="已推送用户" width="600px" :footer="null">
+    <a-modal v-model:open="pushModalVisible" title="已推送用户（推送时间:2021-01-01 13:00:12）" width="600px" :footer="null">
       <a-list item-layout="horizontal" :data-source="pushedUsers">
         <template #renderItem="{ item }">
           <a-list-item>
-            <a-list-item-meta :description="`推送时间: ${item.pushTime}`">
-              <template #title>
-                <a>{{ item.name }}</a>
-              </template>
-              <template #avatar>
-                <a-avatar>{{ item.name[0] }}</a-avatar>
-              </template>
-            </a-list-item-meta>
             <a-tag :color="item.readStatus ? 'green' : 'orange'">
               {{ item.readStatus ? '已读' : '未读' }}
             </a-tag>
+            <a-list-item-meta>
+              <template #title>
+                <a>{{ item.name }}</a>
+              </template>
+            </a-list-item-meta>
+
+            <div>
+              <a-tag v-for="alg in item.algorithm" :key="alg" :color="algorithmTagMap[alg]?.color || 'default'">
+                {{ algorithmTagMap[alg]?.label || alg }}
+              </a-tag>
+            </div>
           </a-list-item>
         </template>
       </a-list>
     </a-modal>
 
     <!-- 查看情报画像的模态框 -->
-    <a-modal v-model:visible="profileModalVisible" title="情报画像" width="800px" :footer="null">
+    <a-modal v-model:open="profileModalVisible" title="情报画像" width="800px" :footer="null">
       <div v-if="currentIntelligence" class="intel-profile">
         <div class="profile-header">
           <h2>情报ID: {{ currentIntelligence.id }}</h2>
@@ -156,6 +158,34 @@ import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import demoImg from '@/assets/images/demo.jpeg';
 import RelationGraph from '@/components/RelationGraph.vue'
+import type { TablePaginationConfig } from 'ant-design-vue';
+
+// 类型声明
+interface PushedUser {
+  id: number;
+  name: string;
+  pushTime: string;
+  readStatus: boolean;
+  algorithm: string[];
+}
+
+interface Intelligence {
+  id: string;
+  latitude: string;
+  longitude: string;
+  satelliteId: string;
+  imageUrl: string;
+  content: string;
+  eventTime: string;
+  receiveTime: string;
+  pushTime: string;
+  status: string;
+}
+
+interface RelatedIntel {
+  id: string;
+  content: string;
+}
 
 const graphData = ref({
   nodes: [
@@ -178,8 +208,7 @@ const graphData = ref({
 // 状态统计数据
 const statusStats = reactive([
   { status: 'total', label: '总数', count: 500, today: 8, trend: 5 },
-  { status: 'pending_extract', label: '待抽取', count: 12, today: 5, trend: 10 },
-  { status: 'pending_relate', label: '待关联', count: 8, today: 3, trend: -5 },
+  { status: 'pending_process', label: '待推荐', count: 8, today: 3, trend: -5 },
   { status: 'pending_push', label: '待推送', count: 15, today: 7, trend: 20 },
   { status: 'pushed', label: '已推送', count: 42, today: 12, trend: 15 }
 ]);
@@ -257,8 +286,7 @@ const columns = [
     dataIndex: 'status',
     key: 'status',
     filters: [
-      { text: '待抽取', value: 'pending_extract' },
-      { text: '待关联', value: 'pending_relate' },
+      { text: '待推荐', value: 'pending_process' },
       { text: '待推送', value: 'pending_push' },
       { text: '已推送', value: 'pushed' },
     ],
@@ -275,7 +303,7 @@ const columns = [
 // 模拟数据
 const generateMockData = () => {
   const data = [];
-  const statuses = ['pending_extract', 'pending_relate', 'pending_push', 'pushed'];
+  const statuses = ['pending_process', 'pending_push', 'pushed'];
   const satellites = ['SAT-001', 'SAT-002', 'SAT-003', 'SAT-004', 'SAT-005'];
 
   for (let i = 1; i <= 50; i++) {
@@ -306,11 +334,11 @@ const generateMockData = () => {
   return data;
 };
 
-const intelligenceData = ref([]);
+const intelligenceData = ref<Intelligence[]>([]);
 
 // 获取状态颜色
 const getStatusColor = (status: string) => {
-  const statusMap = {
+  const statusMap: Record<string, string> = {
     pending_extract: 'orange',
     pending_relate: 'blue',
     pending_push: 'purple',
@@ -321,9 +349,8 @@ const getStatusColor = (status: string) => {
 
 // 获取状态文本
 const getStatusText = (status: string) => {
-  const statusMap = {
-    pending_extract: '待抽取',
-    pending_relate: '待关联',
+  const statusMap: Record<string, string> = {
+    pending_process: '待处理',
     pending_push: '待推送',
     pushed: '已推送',
   };
@@ -333,12 +360,12 @@ const getStatusText = (status: string) => {
 // 模态框数据
 const pushModalVisible = ref(false);
 const profileModalVisible = ref(false);
-const pushedUsers = ref([]);
-const currentIntelligence = ref(null);
-const relatedIntelligence = ref([]);
+const pushedUsers = ref<PushedUser[]>([]);
+const currentIntelligence = ref<Intelligence | null>(null);
+const relatedIntelligence = ref<RelatedIntel[]>([]);
 
 // 查看已推送用户
-const viewPushedUsers = (id) => {
+const viewPushedUsers = (id: string) => {
   loading.value = true;
 
   // 模拟API请求
@@ -349,6 +376,7 @@ const viewPushedUsers = (id) => {
       name: `用户${index + 1}`,
       pushTime: dayjs().subtract(Math.floor(Math.random() * 5), 'hour').format('YYYY-MM-DD HH:mm:ss'),
       readStatus: Math.random() > 0.5,
+      algorithm: getRandomAlgorithms()
     }));
 
     loading.value = false;
@@ -357,16 +385,14 @@ const viewPushedUsers = (id) => {
 };
 
 // 查看情报画像
-const viewIntelligenceProfile = (id) => {
+const viewIntelligenceProfile = (id: string) => {
   loading.value = true;
-
   // 模拟API请求
   setTimeout(() => {
     // 查找当前情报
     const intelligence = intelligenceData.value.find(item => item.id === id);
     if (intelligence) {
       currentIntelligence.value = intelligence;
-
       // 生成模拟关联情报数据
       relatedIntelligence.value = Array(Math.floor(Math.random() * 2) + 1).fill(0).map((_, index) => {
         const relatedId = intelligenceData.value[Math.floor(Math.random() * intelligenceData.value.length)].id;
@@ -375,7 +401,6 @@ const viewIntelligenceProfile = (id) => {
           content: `相关情报${index + 1}，包含与当前情报相似的目标活动`,
         };
       });
-
       loading.value = false;
       profileModalVisible.value = true;
     } else {
@@ -386,11 +411,10 @@ const viewIntelligenceProfile = (id) => {
 };
 
 // 表格变化处理
-const handleTableChange = (pag, filters, sorter) => {
+const handleTableChange = (pag: TablePaginationConfig) => {
   loading.value = true;
-  pagination.current = pag.current;
-  pagination.pageSize = pag.pageSize;
-
+  pagination.current = pag.current ?? 1;
+  pagination.pageSize = pag.pageSize ?? 10;
   // 模拟API请求
   setTimeout(() => {
     loading.value = false;
@@ -427,6 +451,19 @@ onMounted(() => {
     loading.value = false;
   }, 1000);
 });
+
+const algorithmTagMap: Record<string, { label: string; color: string }> = {
+  situation: { label: '态势推荐', color: 'blue' },
+  comprehensive: { label: '综合推荐', color: 'purple' },
+  similarity: { label: '相似度推荐', color: 'green' },
+  vector: { label: '向量化推荐', color: 'geekblue' },
+};
+
+function getRandomAlgorithms() {
+  const count = Math.floor(Math.random() * 2) + 1; // 1或2个
+  const shuffled = Object.keys(algorithmTagMap).sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
 </script>
 
 <style lang="less" scoped>
@@ -527,5 +564,16 @@ onMounted(() => {
     margin: 20px 0;
     text-align: center;
   }
+}
+
+/* 标签容器样式 */
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+  margin-top: 8px;
+  margin-left: 0;
+  padding-left: 0;
 }
 </style>

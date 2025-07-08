@@ -45,7 +45,7 @@ export function login(params: LoginParams): Promise<LoginResponse> {
             userId: 1,
             username: 'admin',
             roleId: 1,
-            permissionUrls: ['/dashboard', '/userTag', '/mapView'],
+            permissionUrls: ['/dashboard', '/userTag', '/mapView', '/algorithm'],
           },
         })
       } else if (params.username === 'agent') {

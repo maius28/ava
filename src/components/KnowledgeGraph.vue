@@ -32,7 +32,7 @@
       <div ref="chartContainer" class="chart-container"></div>
     </div>
 
-    <a-modal v-model:visible="detailVisible" :title="detailTitle" :footer="null" width="600px">
+    <a-modal v-model:open="detailVisible" :title="detailTitle" :footer="null" width="600px">
       <div v-if="detailData">
         <div v-if="detailData.type === 'user'" class="entity-detail">
           <h3>用户详情</h3>

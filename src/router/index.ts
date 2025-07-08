@@ -25,7 +25,6 @@ const router = createRouter({
       meta: {
         title: '多域战场情景刻画',
         description: '使用xxx算法，定时接收遥感数据，并推荐展示给用户机构',
-        showHome: true,
       },
     },
     {
@@ -35,7 +34,6 @@ const router = createRouter({
       meta: {
         title: '知识管理',
         description: '管理用户、标签和情报的数据',
-        showHome: true,
       },
       children: [
         {
@@ -73,24 +71,44 @@ const router = createRouter({
       ],
     },
     {
-      path: '/extraction',
-      name: 'extraction',
-      component: () => import('@/views/IntelDataExtractionView.vue'),
-      meta: {
-        title: '情报抽取',
-        description: '对情报文字进行知识抽取，提取实体、关系等信息',
-        showHome: true,
-      },
-    },
-    {
-      path: '/recommend',
-      name: 'recommend',
-      component: () => import('@/views/RecommendView.vue'),
-      meta: {
-        title: '情报推荐',
-        description: '根据用户的历史行为和偏好，推荐相关情报',
-        showHome: true,
-      },
+      path: '/algorithm',
+      name: 'algorithm',
+      component: () => import('@/views/AlgorithomView.vue'),
+      children: [
+        {
+          path: 'extraction',
+          name: 'extraction',
+          component: () => import('@/views/Extraction.vue'),
+          meta: {
+            title: '情报抽取',
+            description: '对情报文字进行知识抽取，提取实体、关系等信息',
+          },
+        },
+        {
+          path: 'coldStart',
+          name: 'coldStart',
+          component: () => import('@/views/ColdStartRecommendView.vue'),
+          meta: {
+            title: '态势推荐',
+          },
+        },
+        {
+          path: 'comprehensive',
+          name: 'comprehensive',
+          component: () => import('@/views/ComprehensiveView.vue'),
+          meta: {
+            title: '综合推荐',
+          },
+        },
+        {
+          path: 'similarity',
+          name: 'similarity',
+          component: () => import('@/views/SimilartiyRecommendView.vue'),
+          meta: {
+            title: '相似度/向量化推荐',
+          },
+        },
+      ],
     },
   ],
 })

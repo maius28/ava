@@ -1,84 +1,81 @@
 <!-- 情报抽取界面 -->
 <template>
 
-  <a-page-header style="border: 1px solid rgb(235, 237, 240)" title="态势推荐" sub-title="使用xx算法" @back="goBack" />
-
   <!-- 功能展示区域，展示当前页面的主要功能 -->
-  <div class="content">
-    <div class="input-section">
-      <h2>输入情报文本</h2>
-      <div class="input-methods">
-        <!-- 文本输入框 -->
-        <div class="text-input">
-          <a-textarea v-model:value="intelText" placeholder="请输入需要分析的情报文本..." :rows="6"
-            :auto-size="{ minRows: 6, maxRows: 10 }" allow-clear />
+  <div class="input-section">
+    <h2>输入情报文本</h2>
+    <div class="input-methods">
+      <!-- 文本输入框 -->
+      <div class="text-input">
+        <a-textarea v-model:value="intelText" placeholder="请输入需要分析的情报文本..." :rows="6"
+          :auto-size="{ minRows: 6, maxRows: 10 }" allow-clear />
 
-        </div>
-      </div>
-
-      <!-- 开始抽取按钮 -->
-      <div class="action-buttons">
-        <a-button type="primary" size="large" :disabled="!canExtract" @click="startExtraction" :loading="extracting">
-          <template #icon><experiment-outlined /></template>
-          开始提取
-        </a-button>
       </div>
     </div>
 
-    <!-- 抽取进度与结果 -->
-    <div class="extraction-process" v-if="isProcessStarted">
-      <h2>提取进度</h2>
+    <!-- 开始抽取按钮 -->
+    <div class="action-buttons">
+      <a-button type="primary" size="large" :disabled="!canExtract" @click="startExtraction" :loading="extracting">
+        <template #icon><experiment-outlined /></template>
+        开始提取
+      </a-button>
+    </div>
+  </div>
 
-      <!-- 步骤条 -->
-      <a-steps :current="currentStep" class="extraction-steps">
-        <a-step title="提取完毕" description="" />
-        <a-step title="实体构建" description="" />
-        <a-step title="关系构建" description="" />
-        <a-step title="提取可视化" description="" />
-      </a-steps>
+  <!-- 抽取进度与结果 -->
+  <div class="extraction-process" v-if="isProcessStarted">
+    <h2>提取进度</h2>
 
-      <!-- 进度条 -->
-      <div class="progress-container">
-        <a-progress :percent="progressPercent" :status="progressStatus" />
-        <div class="progress-info">{{ progressInfo }}</div>
-      </div>
+    <!-- 步骤条 -->
+    <a-steps :current="currentStep" class="extraction-steps">
+      <a-step title="提取完毕" description="" />
+      <a-step title="实体构建" description="" />
+      <a-step title="关系构建" description="" />
+      <a-step title="提取可视化" description="" />
+    </a-steps>
 
-      <div ref="visualizationArea">
+    <!-- 进度条 -->
+    <div class="progress-container">
+      <a-progress :percent="progressPercent" :status="progressStatus" />
+      <div class="progress-info">{{ progressInfo }}</div>
+    </div>
 
-        <!-- 实体识别 -->
-        <div class="entity-recognition" v-if="currentStep >= 1">
-          <h3>实体</h3>
-          <div class="text-content entities-container">
-            <div v-for="(category, catIndex) in entityCategories" :key="catIndex" class="entity-category">
-              <span class="category-title">{{ category.name }}：</span>
-              <div class="entity-tags">
-                <a-tag v-for="(entity, entIndex) in category.entities" :key="entIndex" :color="category.color">
-                  {{ entity }}
-                </a-tag>
-              </div>
+    <div ref="visualizationArea">
+
+      <!-- 实体识别 -->
+      <div class="entity-recognition" v-if="currentStep >= 1">
+        <h3>实体</h3>
+        <div class="text-content entities-container">
+          <div v-for="(category, catIndex) in entityCategories" :key="catIndex" class="entity-category">
+            <span class="category-title">{{ category.name }}：</span>
+            <div class="entity-tags">
+              <a-tag v-for="(entity, entIndex) in category.entities" :key="entIndex" :color="category.color">
+                {{ entity }}
+              </a-tag>
             </div>
           </div>
         </div>
-
-        <!-- 关系 -->
-        <div class="keyword-extraction" v-if="currentStep >= 2">
-          <h3>关系</h3>
-          <div class="text-content">
-            <div>歼-16战机<span style="font-weight: bold;">执行</span>巡逻任务</div>
-            <div>巡逻任务<span style="font-weight: bold;">执行于</span>东海</div>
-          </div>
-        </div>
-
-        <!-- 关系图 -->
-        <div class="final-result">
-
-          <RelationGraph :graphData="graphData" height="300px" v-if="currentStep >= 3" />
-          <!-- <div id="graph-container" style="height: 300px;"></div> -->
-        </div>
-
       </div>
+
+      <!-- 关系 -->
+      <div class="keyword-extraction" v-if="currentStep >= 2">
+        <h3>关系</h3>
+        <div class="text-content">
+          <div>歼-16战机<span style="font-weight: bold;">执行</span>巡逻任务</div>
+          <div>巡逻任务<span style="font-weight: bold;">执行于</span>东海</div>
+        </div>
+      </div>
+
+      <!-- 关系图 -->
+      <div class="final-result">
+        <h3>画像</h3>
+        <RelationGraph :graphData="graphData" height="300px" v-if="currentStep >= 3" />
+        <!-- <div id="graph-container" style="height: 300px;"></div> -->
+      </div>
+
     </div>
   </div>
+
 </template>
 
 

@@ -21,7 +21,7 @@
 
 
   <!-- 创建/编辑标签弹窗 -->
-  <a-modal v-model:visible="tagModalVisible" :title="tagModalTitle" @ok="handleTagModalOk"
+  <a-modal v-model:open="tagModalVisible" :title="tagModalTitle" @ok="handleTagModalOk"
     @cancel="tagModalVisible = false">
     <a-form :model="tagForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-form-item label="所属主体" name="entity">

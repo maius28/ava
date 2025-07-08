@@ -95,7 +95,7 @@ use([
 const props = defineProps({
   algorithm: {
     type: String,
-    default: 'personalized',
+    default: 'coldStart',
   },
 })
 
@@ -124,18 +124,15 @@ const goToDetail = () => {
     return
   }
   switch (props.algorithm) {
-    case 'personalized':
+    case 'coldStart':
       //跳转到router.js的/extraction
-      router.push('/extraction')
+      router.push('/algorithm/coldStart')
+      break
+    case 'comprehensive':
+      router.push('/algorithm/comprehensive')
       break
     case 'similarity':
-      router.push({
-        name: 'recommend',
-        query: { algorithm: 'similarity' },
-      })
-      break
-    case 'content-based':
-      console.log('跳转到基于内容的算法详情页面')
+      router.push('/algorithm/similarity')
       break
     default:
       console.warn(`未知算法: ${props.algorithm}`)
@@ -395,7 +392,7 @@ const updateMapWithAlgorithm = (algorithm: string) => {
   console.log(`更新地图显示，使用算法: ${algorithm}`)
   // 如果是个性化算法
   switch (algorithm) {
-    case 'personalized':
+    case 'coldStart':
       updateMapPersonalized()
       break
     case 'similarity':

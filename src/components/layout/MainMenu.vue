@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onActivated, watch, getCurrentInstance } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 const route = useRoute();
 const router = useRouter();
@@ -20,8 +20,9 @@ const username = computed(() => authStore.userInfo?.username || '');
 const menuMap: Record<string, string> = {
   '/dashboard': '实时监控',
   '/userTag': '基础信息',
-  '/mapView': '算法演示',
+  '/mapView': '大屏演示',
   '/intel': '情报收件箱',
+  '/algorithm': '算法列表'
   // 可扩展更多
 };
 
@@ -29,11 +30,13 @@ const menuMap: Record<string, string> = {
 const menuItems = computed(() => {
   const urls = authStore.userInfo?.permissionUrls || [];
   // 只显示有权限且在menuMap中的菜单
+  console.log(urls)
   return urls.filter(url => menuMap[url]).map(url => ({
     key: url.replace(/^\//, ''),
     path: url,
     label: menuMap[url],
   }));
+
 });
 
 // 当前选中菜单key
@@ -47,6 +50,14 @@ function logout() {
   authStore.logout();
   router.push('/login');
 }
+
+onActivated(() => {
+  // 这里写页面激活时的刷新逻辑
+});
+
+watch(() => route.fullPath, () => {
+  // 这里写路由变化时的刷新逻辑
+});
 </script>
 
 <template>
@@ -65,7 +76,9 @@ function logout() {
           </a-menu>
         </div>
         <div style="display: flex; align-items: center; gap: 16px;">
-          <span style="color: #fff; font-size: 16px;">{{ username }}</span>
+          <span style="color: #fff; font-size: 16px;">
+            {{ username }}<span v-if="username === 'admin'">(管理员)</span><span v-else>(机构用户)</span>
+          </span>
           <a-button type="link" style="color: #fff;" @click="logout">退出登录</a-button>
         </div>
       </a-layout-header>

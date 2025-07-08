@@ -32,7 +32,7 @@
 
 
   <!-- 新增/编辑用户弹窗 -->
-  <a-modal v-model:visible="userModalVisible" :title="userModalTitle" @ok="handleUserModalOk"
+  <a-modal v-model:open="userModalVisible" :title="userModalTitle" @ok="handleUserModalOk"
     @cancel="userModalVisible = false">
     <a-form :model="userForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-form-item label="用户名称" name="name" :rules="[{ required: true, message: '请输入用户名称' }]">

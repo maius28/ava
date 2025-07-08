@@ -53,12 +53,12 @@
     </a-table>
 
     <!-- 影像预览对话框 -->
-    <a-modal v-model:visible="imagePreviewVisible" title="影像预览" :footer="null" width="800px">
+    <a-modal v-model:open="imagePreviewVisible" title="影像预览" :footer="null" width="800px">
       <img :src="previewImage" class="preview-image" alt="影像预览" />
     </a-modal>
 
     <!-- 推荐用户列表对话框 -->
-    <a-modal v-model:visible="userListVisible" title="推荐用户列表" width="700px" :footer="null">
+    <a-modal v-model:open="userListVisible" title="推荐用户列表" width="700px" :footer="null">
       <a-table :columns="userColumns" :data-source="recommendedUsers" :pagination="false">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'tags'">
