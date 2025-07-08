@@ -3,15 +3,14 @@
   command = "npm run build"
   publish = "dist"
 
-# 处理单页应用路由 - 仅对不存在的路径重定向到 index.html
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = true  # 确保所有请求都重定向到 index.html
-
-# 为 JavaScript 文件设置正确的 MIME 类型
+# 确保 HTML 文件保持正确的 MIME 类型
 [[headers]]
-  for = "/*.js"
+  for = "/*.html"
   [headers.values]
-    Content-Type = "text/javascript"
+    Content-Type = "text/html; charset=utf-8"
+
+# 修复可能的错误映射
+[[redirects]]
+  from = "/*.html"
+  to = "/:splat.html"  # 确保 HTML 文件路径不被改变
+  status = 200
