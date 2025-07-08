@@ -3,15 +3,15 @@
   command = "npm run build"
   publish = "dist"
 
-# 强制所有资源使用相对路径
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Content-Type = "text/html; charset=utf-8"
-    Cache-Control = "no-cache"
-
-# 处理单页应用路由
+# 处理单页应用路由 - 仅对不存在的路径重定向到 index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = true  # 确保所有请求都重定向到 index.html
+
+# 为 JavaScript 文件设置正确的 MIME 类型
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Content-Type = "text/javascript"
