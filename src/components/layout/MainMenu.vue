@@ -67,7 +67,7 @@ watch(() => route.fullPath, () => {
       <a-layout-header style="display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center;">
           <div class="logo" />
-          <a style="color: white; margin: 0; font-size: 20px;"> 多域战场态势信息管理</a>
+          <a style="color: white; margin: 0; font-size: 20px;"> 多域情景态势信息管理</a>
           <a-menu mode="horizontal" theme="dark" :selectedKeys="selectedKeys"
             style="margin-left: 40px; display: inline-block; vertical-align: middle; background: transparent; border-bottom: none;">
             <a-menu-item v-for="item in menuItems" :key="item.key">
