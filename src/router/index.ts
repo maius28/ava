@@ -23,7 +23,7 @@ const router = createRouter({
       name: 'mapView',
       component: () => import('@/views/MapView.vue'),
       meta: {
-        title: '多域战场情景刻画',
+        title: '多域情景刻画',
         description: '使用xxx算法，定时接收遥感数据，并推荐展示给用户机构',
       },
     },

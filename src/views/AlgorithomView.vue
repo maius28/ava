@@ -6,7 +6,7 @@
       </a-menu-item>
     </a-menu>
     <div class="algorithm-content">
-      <router-view />
+      <Router-view />
     </div>
   </div>
 </template>
