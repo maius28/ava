@@ -395,14 +395,13 @@ const updateMapWithAlgorithm = (algorithm: string) => {
     case 'coldStart':
       updateMapPersonalized()
       break
+    case 'comprehensive':
+      updateMapCollaborative()
+      break
     case 'similarity':
-      // 这里可以添加协同过滤推荐算法逻辑
-      console.log('使用协同过滤推荐算法')
       updateMapCollaborative()
       break
     case 'crossDomain':
-      // 这里可以添加基于内容的推荐算法逻辑
-      console.log('使用基于内容的推荐算法')
       updateMapCrossDomain()
       break
     default:
