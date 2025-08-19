@@ -1,4 +1,4 @@
-# algorithm-visualizer-antdv
+# ygqb_frontend
 
 This template should help get you started developing with Vue 3 in Vite.
 
@@ -43,13 +43,13 @@ npm run lint
 ## 构建镜像
 
 ```bash
-docker build -t algorithm-visualizer-antdv .
+docker build -t ygqb_frontend .
 ```
 
 ## 运行容器
 
 ```bash
-docker run -d -p 80:80 --name algorithm-visualizer-antdv algorithm-visualizer-antdv
+docker run -d -p 80:80 --name  ygqb_frontend ygqb_frontend
 ```
 
 访问：<http://localhost/>
