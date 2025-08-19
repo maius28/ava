@@ -1,22 +1,6 @@
 <!-- 情报监控页面 -->
 <template>
   <div class="dashboard-container">
-    <a-card class="stats-card">
-      <div class="stats-wrapper">
-        <a-statistic v-for="(stat, index) in statusStats" :key="index" :value="stat.count" :title="stat.label"
-          :class="`status-${stat.status}`">
-          <template #footer>
-            <div class="stat-footer">
-              <span>今日: +{{ stat.today }}</span>
-              <span :class="stat.trend >= 0 ? 'trend-up' : 'trend-down'">
-                {{ stat.trend >= 0 ? '+' : '' }}{{ stat.trend }}%
-              </span>
-            </div>
-          </template>
-        </a-statistic>
-      </div>
-    </a-card>
-
     <a-card class="filter-card">
       <a-form layout="inline">
         <a-form-item label="状态">
@@ -205,13 +189,7 @@ const graphData = ref({
   ]
 });
 
-// 状态统计数据
-const statusStats = reactive([
-  { status: 'total', label: '总数', count: 500, today: 8, trend: 5 },
-  { status: 'pending_process', label: '待推荐', count: 8, today: 3, trend: -5 },
-  { status: 'pending_push', label: '待推送', count: 15, today: 7, trend: 20 },
-  { status: 'pushed', label: '已推送', count: 42, today: 12, trend: 15 }
-]);
+
 
 // 表格数据
 const loading = ref(false);
@@ -469,57 +447,12 @@ function getRandomAlgorithms() {
 <style lang="less" scoped>
 .dashboard-container {
   padding: 24px;
-  background: #f0f2f5;
   min-height: calc(100vh - 64px);
-
-  .stats-card,
+  background-color: transparent;
   .filter-card,
   .table-card {
     margin-bottom: 24px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  .stats-wrapper {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-
-    :deep(.ant-statistic-card) {
-      flex: 1;
-      min-width: 200px;
-      background-color: #fff;
-      transition: all 0.3s;
-
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
-
-      &.status-pending_extract {
-        .ant-statistic-title {
-          color: #fa8c16;
-        }
-      }
-
-      &.status-pending_relate {
-        .ant-statistic-title {
-          color: #1890ff;
-        }
-      }
-
-      &.status-pending_push {
-        .ant-statistic-title {
-          color: #722ed1;
-        }
-      }
-
-      &.status-pushed {
-        .ant-statistic-title {
-          color: #52c41a;
-        }
-      }
-    }
   }
 
   .stat-footer {

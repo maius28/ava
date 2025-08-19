@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
-import { computed, onMounted, onActivated, watch, getCurrentInstance } from 'vue';
+import { computed, onMounted, onActivated, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 const route = useRoute();
 const router = useRouter();
@@ -20,7 +20,7 @@ const username = computed(() => authStore.userInfo?.username || '');
 const menuMap: Record<string, string> = {
   '/dashboard': '实时监控',
   '/userTag': '基础信息',
-  '/mapView': '大屏演示',
+  '/algorithmMap': '大屏演示',
   '/intel': '情报收件箱',
   '/algorithm': '算法列表'
   // 可扩展更多

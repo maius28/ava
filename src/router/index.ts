@@ -11,7 +11,7 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('@/views/AdminIntelView.vue'),
+      component: () => import('@/views/DashboardMapView.vue'),
     },
     {
       path: '/intel',
@@ -19,9 +19,9 @@ const router = createRouter({
       component: () => import('@/views/UserIntelView.vue'),
     },
     {
-      path: '/mapView',
-      name: 'mapView',
-      component: () => import('@/views/MapView.vue'),
+      path: '/algorithmMap',
+      name: 'algorithmMap',
+      component: () => import('@/views/AlgorithmMapView.vue'),
       meta: {
         title: '多域情景刻画',
         description: '使用xxx算法，定时接收遥感数据，并推荐展示给用户机构',
@@ -73,7 +73,7 @@ const router = createRouter({
     {
       path: '/algorithm',
       name: 'algorithm',
-      component: () => import('@/views/AlgorithomView.vue'),
+      component: () => import('@/views/AlgorithmView.vue'),
       children: [
         {
           path: 'extraction',
